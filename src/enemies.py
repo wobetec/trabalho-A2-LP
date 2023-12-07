@@ -1,0 +1,581 @@
+from random import choice
+import pygame
+from utils import load_image
+
+class Enemies:
+
+    GHOSTS_NAMES = ["blinky", "pinky", "inky", "clyde"]
+
+    def __init__(self, ghosts_start):
+        self.ghosts = { 
+            x: Ghost(
+                x,
+                ghosts_start[x]["x"],
+                ghosts_start[x]["y"],
+                ghosts_start[x]["direction"],
+            ) for x in self.GHOSTS_NAMES
+        }
+        self.powerup = False
+        self.targets = []
+    
+    def add_to_group(self, group):
+        for ghost in self.ghosts.values():
+            group.add(ghost)
+
+    def get_pos(self,):
+        return {x: (self.ghosts[x].rect.x, self.ghosts[x].rect.y) for x in self.GHOSTS_NAMES}
+
+    def revive(self, in_box):
+        for key, value in in_box.items():
+            if value:
+                self.ghosts[key].dead = False
+
+    def set_spooked(self, powerup):
+        for ghost in self.ghosts.values():
+            if powerup:
+                ghost.spooked = True
+            else:
+                ghost.spooked = False
+                ghost.dead = False
+
+
+class Ghost(pygame.sprite.Sprite):
+
+    SPOOKED_IMG = load_image("/images/ghost/spooked.png")
+    DEAD_IMG = load_image("/images/ghost/dead.png")
+
+    def __init__(self, name, start_x, start_y, start_direction):
+        super().__init__()
+        self.start_pos = (start_x, start_y)
+        self.start_direction = start_direction
+        self.name = name
+        self.direction = start_direction
+        self.image = pygame.Surface((45, 45))
+        self.rect = self.image.get_rect()
+        self.rect.center = (start_x, start_y)
+        self.images = [load_image(f"/images/ghost/{self.name}.png")]
+
+        self.image.blit(self.images[0], (0, 0))
+
+        self.in_box = False
+
+        self.speed = 3
+        self.dead = False
+        self.spooked = False
+        self.slow = False
+        self.eaten = False
+
+        self.turns = [False, False, False, False]
+        self.target = [0, 0]
+
+    def restart(self, ):
+        self.rect.center = self.start_pos
+        self.direction = self.start_direction
+        self.dead = False
+        self.spooked = False
+        self.slow = False
+        self.eaten = False
+        self.speed = 3
+
+
+    def set_speed(self, ):
+        if self.spooked:
+            self.speed = 1
+        if self.eaten:
+            self.speed = 2
+        if self.dead:
+            self.speed = 4
+        
+    def set_image(self, ):
+        self.image.fill((0, 0, 0))
+        if (not self.spooked and not self.dead) or (self.eaten and self.spooked and not self.dead):
+            self.image.blit(self.images[0], (0, 0))
+        elif self.spooked and not self.dead and not self.eaten:
+            self.image.blit(self.SPOOKED_IMG, (0, 0))
+        else:
+            self.image.blit(self.DEAD_IMG, (0, 0))
+
+    def update(self, ):
+        self.set_image()
+        self.set_speed()
+
+    def move(self, ):
+
+        if self.name == "clyde":
+            # clyde is going to turn whenever advantageous for pursuit
+
+            if self.direction == 0:
+                if self.target[0] > self.rect.centerx and self.turns[0]:
+                    self.rect.centerx += self.speed
+                elif not self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    if self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    else:
+                        self.rect.centerx += self.speed
+            elif self.direction == 1:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.direction = 3
+                elif self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.rect.centerx -= self.speed
+                elif not self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    if self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    else:
+                        self.rect.centerx -= self.speed
+            elif self.direction == 2:
+                if self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.direction = 1
+                    self.rect.centerx -= self.speed
+                elif self.target[1] < self.rect.centery and self.turns[2]:
+                    self.direction = 2
+                    self.rect.centery -= self.speed
+                elif not self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    else:
+                        self.rect.centery -= self.speed
+            elif self.direction == 3:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.rect.centery += self.speed
+                elif not self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    else:
+                        self.rect.centery += self.speed
+
+        elif self.name == "blinky":
+            # blinky is going to turn whenever colliding with walls, otherwise continue straight
+
+            if self.direction == 0:
+                if self.target[0] > self.rect.centerx and self.turns[0]:
+                    self.rect.centerx += self.speed
+                elif not self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[0]:
+                    self.rect.centerx += self.speed
+            elif self.direction == 1:
+                if self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.rect.centerx -= self.speed
+                elif not self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[1]:
+                    self.rect.centerx -= self.speed
+            elif self.direction == 2:
+                if self.target[1] < self.rect.centery and self.turns[2]:
+                    self.direction = 2
+                    self.rect.centery -= self.speed
+                elif not self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[2]:
+                    self.rect.centery -= self.speed
+            elif self.direction == 3:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.rect.centery += self.speed
+                elif not self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[3]:
+                    self.rect.centery += self.speed
+
+        elif self.name == "inky":
+            # inky self.turns up or down at any point to pursue, but left and right only on collision
+
+            if self.direction == 0:
+                if self.target[0] > self.rect.centerx and self.turns[0]:
+                    self.rect.centerx += self.speed
+                elif not self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    if self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    else:
+                        self.rect.centerx += self.speed
+            elif self.direction == 1:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.direction = 3
+                elif self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.rect.centerx -= self.speed
+                elif not self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    if self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    else:
+                        self.rect.centerx -= self.speed
+            elif self.direction == 2:
+                if self.target[1] < self.rect.centery and self.turns[2]:
+                    self.direction = 2
+                    self.rect.centery -= self.speed
+                elif not self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[2]:
+                    self.rect.centery -= self.speed
+            elif self.direction == 3:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.rect.centery += self.speed
+                elif not self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[3]:
+                    self.rect.centery += self.speed
+
+        elif self.name == "pinky":
+            # inky is going to turn left or right whenever advantageous, but only up or down on collision
+
+            if self.direction == 0:
+                if self.target[0] > self.rect.centerx and self.turns[0]:
+                    self.rect.centerx += self.speed
+                elif not self.turns[0]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                elif self.turns[0]:
+                    self.rect.centerx += self.speed
+            elif self.direction == 1:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.direction = 3
+                elif self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.rect.centerx -= self.speed
+                elif not self.turns[1]:
+                    if self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[1]:
+                    self.rect.centerx -= self.speed
+            elif self.direction == 2:
+                if self.target[0] < self.rect.centerx and self.turns[1]:
+                    self.direction = 1
+                    self.rect.centerx -= self.speed
+                elif self.target[1] < self.rect.centery and self.turns[2]:
+                    self.direction = 2
+                    self.rect.centery -= self.speed
+                elif not self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] > self.rect.centery and self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[3]:
+                        self.direction = 3
+                        self.rect.centery += self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[2]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    else:
+                        self.rect.centery -= self.speed
+            elif self.direction == 3:
+                if self.target[1] > self.rect.centery and self.turns[3]:
+                    self.rect.centery += self.speed
+                elif not self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.target[1] < self.rect.centery and self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[2]:
+                        self.direction = 2
+                        self.rect.centery -= self.speed
+                    elif self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    elif self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                elif self.turns[3]:
+                    if self.target[0] > self.rect.centerx and self.turns[0]:
+                        self.direction = 0
+                        self.rect.centerx += self.speed
+                    elif self.target[0] < self.rect.centerx and self.turns[1]:
+                        self.direction = 1
+                        self.rect.centerx -= self.speed
+                    else:
+                        self.rect.centery += self.speed
+
+        if self.rect.centerx < 0:
+            self.rect.centerx = 900
+        elif self.rect.centerx > 900:
+            self.rect.centerx =0
+
+        
