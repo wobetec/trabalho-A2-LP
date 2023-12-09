@@ -7,6 +7,7 @@ class Enemies:
     GHOSTS_NAMES = ["blinky", "pinky", "inky", "clyde"]
 
     def __init__(self, ghosts_start):
+        """Inicializa os fantasmas no jogo."""
         self.ghosts = { 
             x: Ghost(
                 x,
@@ -19,18 +20,22 @@ class Enemies:
         self.targets = []
     
     def add_to_group(self, group):
+        """Adiciona os fantasmas a um grupo de sprites."""
         for ghost in self.ghosts.values():
             group.add(ghost)
 
     def get_pos(self,):
+        """Retorna a posição atual de cada fantasma."""
         return {x: (self.ghosts[x].rect.x, self.ghosts[x].rect.y) for x in self.GHOSTS_NAMES}
 
     def revive(self, in_box):
+        """Revive os fantasmas que estão na caixa."""
         for key, value in in_box.items():
             if value:
                 self.ghosts[key].dead = False
 
     def set_spooked(self, powerup):
+        """Define se os fantasmas estão assustados ou não."""
         for ghost in self.ghosts.values():
             if powerup:
                 ghost.spooked = True
@@ -40,11 +45,13 @@ class Enemies:
 
 
 class Ghost(pygame.sprite.Sprite):
+    """Esta classe define os fantasmas do jogo."""
 
     SPOOKED_IMG = load_image("/images/ghost/spooked.png")
     DEAD_IMG = load_image("/images/ghost/dead.png")
 
     def __init__(self, name, start_x, start_y, start_direction):
+        """Inicializa um fantasma com suas características."""
         super().__init__()
         self.start_pos = (start_x, start_y)
         self.start_direction = start_direction
@@ -69,6 +76,7 @@ class Ghost(pygame.sprite.Sprite):
         self.target = [0, 0]
 
     def restart(self, ):
+        """Reinicia o estado do fantasma para recomeçar."""
         self.rect.center = self.start_pos
         self.direction = self.start_direction
         self.dead = False
@@ -79,6 +87,7 @@ class Ghost(pygame.sprite.Sprite):
 
 
     def set_speed(self, ):
+        """Define a velocidade do fantasma com base em seu estado."""
         if self.spooked:
             self.speed = 1
         if self.eaten:
@@ -87,6 +96,7 @@ class Ghost(pygame.sprite.Sprite):
             self.speed = 4
         
     def set_image(self, ):
+        """Define a imagem do fantasma com base em seu estado."""
         self.image.fill((0, 0, 0))
         if (not self.spooked and not self.dead) or (self.eaten and self.spooked and not self.dead):
             self.image.blit(self.images[0], (0, 0))
@@ -96,11 +106,12 @@ class Ghost(pygame.sprite.Sprite):
             self.image.blit(self.DEAD_IMG, (0, 0))
 
     def update(self, ):
+        """Atualiza a imagem e velocidade do fantasma."""
         self.set_image()
         self.set_speed()
 
     def move(self, ):
-
+        """Move o fantasma no jogo."""
         if self.name == "clyde":
             # clyde is going to turn whenever advantageous for pursuit
 

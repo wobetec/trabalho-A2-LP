@@ -14,11 +14,21 @@ import pygame
 # 9 = ghosts gate
 
 class Board():
+    """Esta classe define o tabuleiro do jogo."""
 
     AVAILABLE_TILES = [0, 1, 2]
     ENEMIE_AVAILABLE_TILES = [0, 1, 2, 9]
 
     def __init__(self, board, height, width, box):
+        """
+        Inicializa a classe Board.
+
+        Parâmetros:
+        - board (list): Matriz representando o tabuleiro do jogo.
+        - height (int): Altura da janela do jogo.
+        - width (int): Largura da janela do jogo.
+        - box (dict): Dicionário contendo informações sobre a caixa do jogo.
+        """
         self.board = copy.deepcopy(board)
         self.main_color = (0, 0, 255)
         self.height = height
@@ -31,6 +41,9 @@ class Board():
         self.count_fruits_and_dots()
     
     def count_fruits_and_dots(self, ):
+        """
+        Conta o número de frutas e pontos disponíveis no tabuleiro.
+        """
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 if self.board[i][j] == 1 or self.board[i][j] == 2:
@@ -38,6 +51,19 @@ class Board():
 
 
     def check_collision_ghost(self, center_x, center_y, dead, in_box, direction):
+        """
+        Verifica colisões com os fantasmas no tabuleiro.
+
+        Parâmetros:
+        - center_x (int): Coordenada x do centro do personagem.
+        - center_y (int): Coordenada y do centro do personagem.
+        - dead (bool): Indica se o personagem está morto ou não.
+        - in_box (bool): Indica se o personagem está dentro ou fora da caixa.
+        - direction (int): Direção atual do personagem.
+
+        Retorna:
+        Uma lista indicando se há colisão em direções específicas e se o personagem está dentro ou fora da caixa.
+        """
         # R, L, U, D
         margin = 15
         turns = [False, False, False, False]
@@ -112,6 +138,21 @@ class Board():
 
 
     def check_collision_points(self, center_x, center_y, powerup, power_count, score, eaten_ghosts):
+        """
+        Verifica colisões com os pontos no tabuleiro.
+
+        Parâmetros:
+        - center_x (int): Coordenada x do centro do personagem.
+        - center_y (int): Coordenada y do centro do personagem.
+        - powerup (bool): Indica se há um power-up ativo ou não.
+        - power_count (int): Contagem do power-up.
+        - score (int): Pontuação atual.
+        - eaten_ghosts (list): Lista indicando fantasmas comidos.
+
+        Retorna:
+        Atualiza o score, powerups e fantasmas comidos.
+        """
+
         if 0 < center_x < 870:
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 1:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
@@ -126,6 +167,18 @@ class Board():
 
 
     def check_postion(self, center_x, center_y, turns, direction):
+        """
+        Verifica a posição do personagem no tabuleiro e possíveis colisões.
+
+        Parâmetros:
+        - center_x (int): Coordenada x do centro do personagem.
+        - center_y (int): Coordenada y do centro do personagem.
+        - turns (list): Lista de direções permitidas.
+        - direction (int): Direção atual do personagem.
+
+        Retorna:
+        Uma lista indicando direções permitidas para o movimento.
+        """
         turns = [False, False, False, False]
         margin = 15
         # check collisions based on center x and center y of player +/- fudge number
@@ -173,6 +226,16 @@ class Board():
 
 
     def in_box(self, enemies):
+        """
+        Verifica se os inimigos estão dentro da caixa no tabuleiro.
+
+        Parâmetros:
+        - enemies (dict): Dicionário contendo informações sobre os inimigos.
+
+        Retorna:
+        Um dicionário indicando se os inimigos estão dentro da caixa.
+        """
+
         inside = {}
         for key, value in enemies.items():
             inside[key] = self.box.collidepoint(*value)
@@ -180,6 +243,13 @@ class Board():
     
 
     def draw(self, screen):
+        """
+        Desenha o tabuleiro na tela do jogo.
+
+        Parâmetros:
+        - screen (pygame.Surface): Superfície da tela onde o tabuleiro será desenhado.
+        """
+
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 if self.board[i][j] == 1:
