@@ -6,6 +6,7 @@ from board import Board
 from utils import load_board
 
 class Game():
+    """Esta classe controla a lógica principal do jogo."""
 
     WIDTH = 900
     HEIGHT = 900
@@ -13,6 +14,12 @@ class Game():
     FPS = 60
 
     def __init__(self, ):
+        """
+        Inicializa a classe Game, responsável pelo controle principal do jogo.
+
+        Configura a janela do jogo, cria instâncias de personagens, inimigos e define variáveis de estado do jogo.
+        """
+         
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
@@ -48,9 +55,11 @@ class Game():
         self.score = 0
 
     def start(self, ):
+        """Inicia o loop principal do jogo."""
         self.run()
     
     def restart(self, ):
+        """Reinicia algumas variáveis do jogo para recomeçar."""
         self.moving = False
         self.start_counter = 2
         self.player.restart()
@@ -58,6 +67,7 @@ class Game():
             ghost.restart()
 
     def run(self, ):
+        """Loop principal do jogo, controla a lógica do jogo."""
         running = True
         while running:
             self.dt = self.clock.tick(self.FPS) / 1000.0
@@ -158,6 +168,7 @@ class Game():
         pygame.quit()
 
     def check_collision_player_ghosts(self, ):
+        """Verifica se houve colisão entre o jogador e os fantasmas."""
         for ghost in self.enemies.ghosts.values():
             if self.player.rect.colliderect(ghost.rect) and not ghost.dead:
                 return True
@@ -165,6 +176,7 @@ class Game():
         return False
     
     def check_eat_ghost(self, ):
+        """Verifica se o jogador comeu um fantasma e atualiza a pontuação."""
         i = 0
         for ghost in self.enemies.ghosts.values():
             if self.player.rect.colliderect(ghost.rect) and not ghost.dead:
@@ -174,6 +186,7 @@ class Game():
                 i += 1
     
     def get_targets(self):
+        """Define os alvos dos fantasmas com base na posição do jogador e no mapa."""
         blinky = self.enemies.ghosts["blinky"]
         blinky_x, blinky_y = blinky.rect.center
 
