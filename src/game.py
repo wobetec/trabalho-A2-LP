@@ -144,12 +144,6 @@ class Game():
 
 ######## END MENU ########
     
-
-    def start(self, ):
-        """Inicia o loop principal do jogo."""
-        # self.show_menu()
-        self.run()
-    
     def restart(self, ):
         """Reinicia algumas variáveis do jogo para recomeçar."""
         self.moving = False
@@ -162,7 +156,8 @@ class Game():
         running = True
         self.sounds["start"].play()
         while running:
-            self.dt = self.clock.tick(self.FPS) / 1000.0
+            t_dt = self.clock.tick(self.FPS) / 1000.0
+            self.dt = min(t_dt, 0.018)
 
             if self.powerup["active"]:
                 if self.powerup["counter"] < self.powerup["duration"]:
@@ -214,7 +209,7 @@ class Game():
                     ghost.move()
 
             if not self.powerup["active"] and self.check_collision_player_ghosts():
-                if self.lives > 0:
+                if self.lives > 1:
                     self.sounds["death"].play()
                     pygame.time.wait(1000)
                     self.lives -= 1
@@ -385,4 +380,3 @@ class Game():
 if __name__ == "__main__":
     game = Game()
     game.show_menu()
-    game.start()
