@@ -178,6 +178,10 @@ class Game():
                 self.screen.fill("black")
                 self.board.game_over_screen(self.screen, self.font)
 
+            if self.game_won :
+                self.screen.fill("black")
+                self.board.game_won_screen(self.screen, self.font)
+
             pygame.display.flip()
 
         pygame.quit()

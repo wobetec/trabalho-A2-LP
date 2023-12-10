@@ -1,7 +1,7 @@
 import copy
 from math import pi as PI
 import pygame
-from button import QuitButton
+from button import Button
 import sys
 
 from utils import load_image
@@ -291,15 +291,18 @@ class Board():
                     pygame.draw.line(screen, 'white', (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)),
                                     (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
     
-    gameover_img = load_image("/images/other/endgame.png", 300)
+    gameover_img = load_image("/images/other/endgame.png", 600)
+    game_won_img = load_image("/images/other/pinho.png", 900)
 
     def game_over_screen(self, screen, font) :
         
-        screen.blit(self.gameover_img, (self.height//2, self.width//2))
+        screen.blit(self.gameover_img, (150, -20))
     
-        button = QuitButton(350, 410, 200, 80, gray, "Sair", screen)
+        quit_button = Button(350, 610, 200, 80, gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, white, "Recomeçar", screen)
         
-        # # loop do gameover screen 
+        # Loop do gameover screen 
 
         gameover_state = True
 
@@ -310,18 +313,58 @@ class Board():
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if button.rect.collidepoint(event.pos):
+                    if quit_button.rect.collidepoint(event.pos):
                         pygame.quit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        pass                 
 
-            # Draw the button
-            button.draw()
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
 
             # Update the display
             pygame.display.flip()
 
             # Cap the frame rate
             pygame.time.Clock().tick(30)                 
-                        
+
+    def game_won_screen(self, screen, font) :
+        
+        screen.blit(self.game_won_img, (0, 0))
+    
+        quit_button = Button(350, 610, 200, 80, gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, white, "Menu", screen)
+        
+        # Loop do gamewon screen 
+
+        gamewon_state = True
+
+        # Main game loop
+        while gamewon_state:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_button.rect.collidepoint(event.pos):
+                        pygame.quit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        pass                 
+
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
+
+            # Update the display
+            pygame.display.flip()
+
+            # Cap the frame rate
+            pygame.time.Clock().tick(30)       
                 
         
 
