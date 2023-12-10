@@ -1,6 +1,7 @@
 from random import choice
 import pygame
 from utils import load_image
+from character import Character
 
 class Enemies:
 
@@ -44,7 +45,7 @@ class Enemies:
                 ghost.dead = False
 
 
-class Ghost(pygame.sprite.Sprite):
+class Ghost(Character):
     """Esta classe define os fantasmas do jogo."""
 
     SPOOKED_IMG = load_image("/images/ghost/spooked.png")
@@ -52,27 +53,18 @@ class Ghost(pygame.sprite.Sprite):
 
     def __init__(self, name, start_x, start_y, start_direction):
         """Inicializa um fantasma com suas características."""
-        super().__init__()
-        self.start_pos = (start_x, start_y)
-        self.start_direction = start_direction
+        super().__init__(start_x, start_y, start_direction)
         self.name = name
-        self.direction = start_direction
-        self.image = pygame.Surface((45, 45))
-        self.rect = self.image.get_rect()
-        self.rect.center = (start_x, start_y)
-        self.images = [load_image(f"/images/ghost/{self.name}.png")]
 
+        self.images = [load_image(f"/images/ghost/{self.name}.png")]
         self.image.blit(self.images[0], (0, 0))
 
         self.in_box = False
-
-        self.speed = 3
         self.dead = False
         self.spooked = False
         self.slow = False
         self.eaten = False
 
-        self.turns = [False, False, False, False]
         self.target = [0, 0]
 
     def restart(self, ):
@@ -84,7 +76,6 @@ class Ghost(pygame.sprite.Sprite):
         self.slow = False
         self.eaten = False
         self.speed = 3
-
 
     def set_speed(self, ):
         """Define a velocidade do fantasma com base em seu estado."""

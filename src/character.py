@@ -2,7 +2,6 @@ import pygame
 
 class Character(pygame.sprite.Sprite):
 
-
     def __init__(self, start_x, start_y, start_direction):
         super().__init__()
         self.start_pos = (start_x, start_y)

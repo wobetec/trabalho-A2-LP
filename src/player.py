@@ -4,8 +4,9 @@ Define a classe de jogador utilizada no game.
 import pygame
 from utils import load_image
 from math import floor, ceil
+from character import Character
 
-class Player(pygame.sprite.Sprite):
+class Player(Character):
     """
     Classe que herda de Sprite. Implementa a movimentação e renderização do Pacman.
     """
@@ -19,14 +20,7 @@ class Player(pygame.sprite.Sprite):
             start_y (int): Posição inicial do Pacman no eixo y.
             start_direction (int): Direção inicial do Pacman. 0-Direita, 1-Esquerda, 2-Cima, 3-Baixo.
         """
-        super().__init__()
-        self.start_pos = (start_x, start_y)
-        self.start_direction = start_direction
-        self.direction = start_direction
-        self.image = pygame.Surface((45, 45))
-        self.rect = self.image.get_rect()
-        self.rect.center = (start_x, start_y)
-        self.speed = 3
+        super().__init__(start_x, start_y, start_direction)
         self.turns = [False, False, False, False]
 
         self.images = []
