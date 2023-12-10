@@ -1,5 +1,7 @@
 # Jogo PacMan em Python com Pygame (Trabalho A2 - Linguagens de Programação)
 
+#### Membros: João Pedro Tambosi, João Felipe Vilas Boas, Esdras Cavalcanti, Marcelo Ângelo, e Vitor Palmeira.
+
 Bem-vindo à nossa replica do jogo PacMan, desenvolvido em Python com Pygame e utilizando uma abordagem robusta de Orientação a Objetos.
 
 ## Visão Geral
@@ -15,7 +17,8 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
 ## Funcionalidades Principais
 
 - **PacMan e Fantasmas**: Implementação dos personagens principais. O PacMan sendo controlados pelas teclas "WASD" e os fantasmas com algoritmos próprios de perseguição.
-- **Labirinto Dinâmico**: Criação de um labirinto dinâmico que desafia os jogadores e oferece uma experiência envolvente.
+- **UI interativo**: Telas de menu, Game Over e "You Won" indicando resultados do jogo.
+- **Labirinto idêntico ao do jogo original**: Criação de um labirinto que desafia os jogadores.
 - **Pontuação, vidas restantes e progresso**: indicamos 3 métricas durante o jogo na barra inferior: pontuação total (cada fantasma comido vale 100, cada ponto vale 10 e cada fruta vale 50), progresso total da fase e vidas restantes (o jogador tem 4 vidas).
 
 ## Como Executar
