@@ -7,7 +7,7 @@ black = (0, 0, 0)
 gray = (200, 200, 200)
 
 # Define Button class
-class QuitButton:
+class Button:
     def __init__(self, x, y, width, height, color, text, screen):
         self.screen = screen
         self.rect = pygame.Rect(x, y, width, height)
