@@ -13,6 +13,15 @@ from button import Button
 from utils import load_board, load_image, load_sound
 
 def load_high_scores(filename='highscores.json'):
+    """
+    Carrega as pontuações mais altas de um arquivo JSON.
+
+    Parameters:
+        filename (str): O caminho do arquivo JSON para carregar as pontuações.
+
+    Returns:
+        list: Uma lista de dicionários contendo as pontuações mais altas e os nomes dos jogadores.
+    """
     project_root = os.path.dirname(os.path.dirname(__file__))  # Obtém o diretório raiz do projeto
     filepath = os.path.join(project_root, filename)  # Constrói o caminho até o arquivo
     try:
@@ -22,13 +31,56 @@ def load_high_scores(filename='highscores.json'):
         return []
 
 def save_high_scores(high_scores, filename='highscores.json'):
+    """
+    Salva as pontuações mais altas em um arquivo JSON.
+
+    Parameters:
+        high_scores (list): Uma lista de dicionários contendo as pontuações mais altas e os nomes dos jogadores.
+        filename (str): O caminho do arquivo JSON onde as pontuações serão salvas.
+
+    Returns:
+        None
+    """
     project_root = os.path.dirname(os.path.dirname(__file__))  # Obtém o diretório raiz do projeto
     filepath = os.path.join(project_root, filename)  # Constrói o caminho até o arquivo
     with open(filepath, 'w') as file:
         json.dump(high_scores, file, indent=4)
 
 class Game():
-    """Esta classe controla a lógica principal do jogo."""
+    """
+    Classe principal do jogo, gerenciando a lógica principal e o estado do jogo.
+
+    Attributes:
+        WIDTH (int): Largura da tela do jogo.
+        HEIGHT (int): Altura da tela do jogo.
+        FPS (int): Frames por segundo do jogo.
+        screen (pygame.Surface): A superfície principal onde o jogo é renderizado.
+        clock (pygame.time.Clock): O relógio do jogo para controle de tempo.
+        font (pygame.font.Font): Fonte pequena para renderização de texto.
+        font_mid (pygame.font.Font): Fonte de tamanho médio para renderização de texto.
+        font_big (pygame.font.Font): Fonte grande para renderização de texto.
+        sprites_group (pygame.sprite.Group): Grupo que contém todos os sprites do jogo.
+        board (Board): O tabuleiro do jogo, contendo informações sobre layout e colisões.
+        player (Player): O jogador controlado pelo usuário.
+        enemies (Enemies): O grupo de inimigos no jogo.
+        powerup (dict): Dicionário contendo informações sobre o power-up (se está ativo, contador, duração).
+        moving (bool): Flag para controlar se os sprites estão se movendo.
+        start_counter (float): Contador para o início do jogo.
+        game_over (bool): Flag que indica se o jogo terminou (perda).
+        game_won (bool): Flag que indica se o jogo foi vencido.
+        direction_command (int): Direção atual comandada pelo jogador.
+        lives (int): Número de vidas do jogador.
+        score (int): Pontuação atual do jogador.
+        coracao (pygame.Surface): Imagem representando a vida do jogador.
+        sounds (dict): Dicionário contendo os efeitos sonoros do jogo.
+        high_scores (list): Lista de pontuações mais altas.
+        player_name (str): Nome do jogador.
+        gameover_img (pygame.Surface): Imagem da tela de 'game over'.
+        game_won_img (pygame.Surface): Imagem da tela de vitória.
+        white (tuple): Cor branca em RGB.
+        black (tuple): Cor preta em RGB.
+        gray (tuple): Cor cinza em RGB.
+    """
 
     WIDTH = 900
     HEIGHT = 900
@@ -98,12 +150,24 @@ class Game():
     ##### MENU #####
     
     def set_player_name(self, name):
+        """
+        Define o nome do jogador.
+
+        Parameters:
+            name (str): O nome do jogador a ser definido.
+        """
         self.player_name = name
 
     def start_the_game(self):
+        """
+        Inicia o loop principal do jogo.
+        """
         self.run()
 
     def show_menu(self):
+        """
+        Exibe o menu principal do jogo, permitindo ao jogador iniciar o jogo, ver pontuações mais altas ou sair.
+        """
         main_menu = pygame_menu.Menu('Welcome', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_DARK)
         high_score_menu = self.show_high_scores()
 
@@ -122,6 +186,10 @@ class Game():
     
 
     def update_high_scores(self):
+        """
+        Atualiza a lista de pontuações mais altas com a pontuação atual do jogador.
+        """
+
         # Verificar se o nome do jogador foi definido
         if hasattr(self, 'player_name'):
             # Adicionar a pontuação atual e o nome do jogador às pontuações mais altas
@@ -134,6 +202,13 @@ class Game():
             save_high_scores(self.high_scores)
     
     def show_high_scores(self):
+        """
+        Exibe um menu com as pontuações mais altas do jogo.
+
+        Returns:
+            pygame_menu.Menu: Um objeto de menu contendo as pontuações mais altas.
+        """
+
         # Criar um menu para mostrar as pontuações mais altas
         high_score_menu = pygame_menu.Menu('High Scores', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_BLUE)
 
@@ -243,6 +318,16 @@ class Game():
         pygame.quit()
 
     def draw_stats(self, font, score, screen, lives, heart_image):
+        """
+        Desenha as estatísticas do jogo, incluindo pontuação e vidas, na tela.
+
+        Parameters:
+            font (pygame.font.Font): A fonte a ser usada para desenhar o texto.
+            score (int): A pontuação atual do jogador.
+            screen (pygame.Surface): A superfície onde as estatísticas serão desenhadas.
+            lives (int): O número de vidas restantes do jogador.
+            heart_image (pygame.Surface): A imagem de um coração a ser usada para representar vidas.
+        """
         score_text = self.font.render(f"Pontuação: {score}", True, 'white')
         screen.blit(score_text, (10, 880))
 
@@ -259,7 +344,12 @@ class Game():
         screen.blit(progress, (700, 880))
 
     def check_collision_player_ghosts(self, ):
-        """Verifica se houve colisão entre o jogador e os fantasmas."""
+        """
+        Verifica se houve colisão entre o jogador e os fantasmas.
+
+        Returns:
+            bool: Verdadeiro se houve colisão, falso caso contrário.
+        """
         for ghost in self.enemies.ghosts.values():
             if self.player.rect.colliderect(ghost.rect) and not ghost.is_dead():
                 return True
@@ -268,7 +358,9 @@ class Game():
     
 
     def check_eat_ghost(self, ):
-        """Verifica se o jogador comeu um fantasma e atualiza a pontuação."""
+        """
+        Verifica se o jogador comeu um fantasma e atualiza a pontuação.
+        """
         i = 0
         for ghost in self.enemies.ghosts.values():
             if self.player.rect.colliderect(ghost.rect) and not ghost.is_dead():
@@ -279,7 +371,9 @@ class Game():
     
 
     def get_targets(self, ):
-        """Define os alvos dos fantasmas com base na posição do jogador e no mapa."""
+        """
+        Define os alvos dos fantasmas com base na posição do jogador e no estado do jogo.
+        """
         blinky = self.enemies.ghosts["blinky"]
         blinky_x, blinky_y = blinky.rect.center
 
@@ -377,6 +471,9 @@ class Game():
 
 
     def verify_in_box(self, ):
+        """
+        Verifica se os fantasmas estão na 'caixa' de início e ajusta seu estado.
+        """
         for ghost in self.enemies.ghosts.values():
             in_box = self.board.in_box(ghost.get_rect())
             ghost.set_in_box(in_box)
@@ -392,6 +489,16 @@ class Game():
     gray = (200, 200, 200)
 
     def game_over_screen(self, screen, font) :
+        """
+        Exibe a tela de fim de jogo quando o jogador perde todas as vidas.
+
+        Parameters:
+            screen (pygame.Surface): A superfície onde a tela de fim de jogo será desenhada.
+            font (pygame.font.Font): A fonte a ser usada para desenhar o texto.
+
+        Returns:
+            bool: Verdadeiro se o jogador escolher retornar ao menu principal, falso caso contrário.
+        """
         
         screen.blit(self.gameover_img, (150, -20))
     
@@ -430,7 +537,20 @@ class Game():
             pygame.time.Clock().tick(30)
         return return_to_menu                 
 
-    def game_won_screen(self, screen, font_big, font, points) :
+    def game_won_screen(self, screen, font_big, font, points):
+
+        """
+        Exibe a tela de vitória quando o jogador vence o jogo.
+
+        Parameters:
+            screen (pygame.Surface): A superfície onde a tela de vitória será desenhada.
+            font_big (pygame.font.Font): A fonte grande para o texto principal.
+            font (pygame.font.Font): A fonte para o texto secundário.
+            points (int): A pontuação final do jogador.
+
+        Returns:
+            bool: Verdadeiro se o jogador escolher retornar ao menu principal, falso caso contrário.
+        """
         
         screen.blit(self.game_won_img, (0, 0))
     
