@@ -1,8 +1,8 @@
 # Requisitos solicitados
 
 ## Grupos: 3 - 5 integrantes
-- [] Para cada +/- 1 aluno: -1 Ponto
-## Entrega: Domingo - 10/12
+- [x] Para cada +/- 1 aluno: -1 Ponto
+## Entrega: Domingo - 10/12 9:00am
 - [] Para cada dia de atraso: -2 Pontos
 - [] Entrega (Código) via repositório no GitHub [-2 pontos]
 - [] Histórico detalhado de commits individuais [-2 pontos]

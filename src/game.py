@@ -7,7 +7,8 @@ import pygame_menu
 import json
 from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
 import os
-
+import sys
+from button import Button
 
 from utils import load_board, load_image, load_sound
 
@@ -103,7 +104,7 @@ class Game():
         self.run()
 
     def show_menu(self):
-        main_menu = pygame_menu.Menu('Welcome', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_BLUE)
+        main_menu = pygame_menu.Menu('Welcome', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_DARK)
         high_score_menu = self.show_high_scores()
 
         main_menu.add.text_input('Name :', default='Player 1', onchange=self.set_player_name)
@@ -223,15 +224,19 @@ class Game():
 
             self.draw_stats(self.font, self.score, self.screen, self.lives, self.coracao)
 
-            if self.game_over or self.game_won:
-                # self.running = False
+            if self.game_over:
                 self.screen.fill("black")
                 self.update_high_scores()
-                self.board.game_over_screen(self.screen, self.font)
+                if self.game_over_screen(self.screen, self.font):
+                    self.show_menu()  # Mostra o menu principal se o usuário escolher 'Menu'
+                    break  # Encerra o loop do jogo
 
-            if self.game_won :
+            if self.game_won:
                 self.screen.fill("black")
-                self.board.game_won_screen(self.screen, self.font_big, self.font_mid, self.score)
+                self.update_high_scores()
+                if self.game_won_screen(self.screen, self.font_big, self.font_mid, self.score):
+                    self.show_menu()  # Mostra o menu principal se o usuário escolher 'Menu'
+                    break  # Encerra o loop do jogo
 
             pygame.display.flip()
 
@@ -375,7 +380,123 @@ class Game():
         for ghost in self.enemies.ghosts.values():
             in_box = self.board.in_box(ghost.get_rect())
             ghost.set_in_box(in_box)
+
+    #### FINAL SCREENS ####
+
+    gameover_img = load_image("/images/other/endgame.png", 600)
+    game_won_img = load_image("/images/other/pinho.jpg", 900)
+
+    # Define colors
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    gray = (200, 200, 200)
+
+    def game_over_screen(self, screen, font) :
         
+        screen.blit(self.gameover_img, (150, -20))
+    
+        quit_button = Button(350, 610, 200, 80, self.gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, self.white, "Menu", screen)
+        
+        # Loop do gameover screen 
+
+        gameover_state = True
+
+        # Main game loop
+        while gameover_state:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_button.rect.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        return_to_menu = True  # Define a flag para retornar ao menu
+                        gameover_state = False                   
+
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
+
+            # Update the display
+            pygame.display.flip()
+
+            # Cap the frame rate
+            pygame.time.Clock().tick(30)
+        return return_to_menu                 
+
+    def game_won_screen(self, screen, font_big, font, points) :
+        
+        screen.blit(self.game_won_img, (0, 0))
+    
+        quit_button = Button(350, 610, 200, 80, self.gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, self.white, "Menu", screen)
+        
+        # Loop do gamewon screen 
+
+        gamewon_state = True
+
+        # Main game loop
+        while gamewon_state:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_button.rect.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        return_to_menu = True  # Define a flag para retornar ao menu
+                        gamewon_state = False              
+
+
+            # Você venceu text
+        
+            vc_venceu_text = font_big.render(f"Você venceu!", True, 'white')
+            vc_venceu_text_rect = vc_venceu_text.get_rect()
+
+            # Calculate the position where you want to blit the text
+            sizeoftext_x = (screen.get_width() - vc_venceu_text_rect.width) // 2
+            sizeoftext_y = (screen.get_height() - vc_venceu_text_rect.height - 300) // 2
+
+            # Blit the text to the screen
+            screen.blit(vc_venceu_text, (sizeoftext_x, sizeoftext_y))
+
+            # Sua pontuação text
+
+            pontuacao_text = font.render(f"Sua pontuação: {points}", True, 'white')
+            pontuacao_text_rect = pontuacao_text.get_rect()
+            
+            # Calculate the position where you want to blit the text
+            sizeoftext_x_2 = (screen.get_width() - pontuacao_text_rect.width) // 2
+            sizeoftext_y_2 = (screen.get_height() - pontuacao_text_rect.height - 200) // 2
+
+            # Blit the text to the screen
+            screen.blit(pontuacao_text, (sizeoftext_x_2, sizeoftext_y_2))
+
+
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
+
+            # Update the display
+            pygame.display.flip()
+
+            # Cap the frame rate
+            pygame.time.Clock().tick(30)
+
+        return return_to_menu  
+
+
 
 if __name__ == "__main__":
     game = Game()
