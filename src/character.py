@@ -1,8 +1,24 @@
+"""
+Define a classe base para criação dos personagens do jogo.
+"""
 import pygame
 
 class Character(pygame.sprite.Sprite):
+    """
+    Classe base para criação dos personagens do jogo.
+    """
 
     def __init__(self, start_x, start_y, start_direction, x_limit, y_limit):
+        """
+        Construtor da classe Character.
+
+        Parameters:
+            start_x (int): Posição inicial no eixo x.
+            start_y (int): Posição inicial no eixo y.
+            start_direction (int): Direção inicial.
+            x_limit (int): Limite do eixo x.
+            y_limit (int): Limite do eixo y.
+        """
         super().__init__()
         self.start_pos = (start_x, start_y)
         self.start_direction = start_direction
@@ -17,42 +33,42 @@ class Character(pygame.sprite.Sprite):
     
     def base_restart(self, ):
         """
-        Método que reinicia o Pacman para a posição e atributos inicias
+        Método que reinicia o personagem para a posição inicial.
         """
         self.rect.center = self.start_pos
         self.direction = self.start_direction
     
     def set_turns(self, turns):
         """
-        Método que define as direções que o Pacman pode virar.
+        Define as direções que o personagem pode virar.
 
         Parameters:
-            turns (list): Lista de booleanos que define as direções que o Pacman pode virar.
+            turns (list): Lista de booleanos que define as direções para virar.
         """
         self.turns = turns
     
     def set_direction(self, direction):
         """
-        Método que define a direção do Pacman.
+        Define a direção do personagem.
 
         Parameters:
-            direction (int): Direção do Pacman.
+            direction (int): Direção do personagem.
         """
         self.direction = direction
     
     def get_center(self, ):
         """
-        Método que retorna a posição central do Pacman.
+        Retorna a posição central do personagem.
 
         Returns:
-            tuple: Tupla com a posição central do Pacman.
+            tuple: Tupla com a posição central do personagem.
         """
         return self.rect.center
 
     def get_rect(self, ):
-        """Retorna o retângulo do fantasma."""
+        """Retorna o retângulo do personagem."""
         return self.rect
 
     def get_direction(self, ):
-        """Retorna a direção do fantasma."""
+        """Retorna a direção do direção do personagem."""
         return self.direction

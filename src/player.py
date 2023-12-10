@@ -8,17 +8,19 @@ from character import Character
 
 class Player(Character):
     """
-    Classe que herda de Sprite. Implementa a movimentação e renderização do Pacman.
+    Classe que herda de Character. Implementa a movimentação e renderização do Pacman.
     """
 
     def __init__(self, start_x, start_y, start_direction, x_limit, y_limit):
         """
-        Instanciador da classe Player. Define os atributos e importa as sprites.
+        Instanciador da classe Player.
 
         Parameters:
             start_x (int): Posição inicial do Pacman no eixo x.
             start_y (int): Posição inicial do Pacman no eixo y.
             start_direction (int): Direção inicial do Pacman. 0-Direita, 1-Esquerda, 2-Cima, 3-Baixo.
+            x_limit (int): Limite do eixo x.
+            y_limit (int): Limite do eixo y.
         """
         super().__init__(start_x, start_y, start_direction, x_limit, y_limit)
 
@@ -30,10 +32,10 @@ class Player(Character):
 
         self.counter = 0
 
-    
+
     def set_image(self, ):
         """
-        Método que define a imagem do Pacman de acordo com a direção e o contador.
+        Define a imagem do Pacman de acordo com a direção e o contador.
         """
         image = self.images[floor(self.counter)]
         pos =  (0 ,0)
@@ -50,7 +52,7 @@ class Player(Character):
 
     def get_input(self, ):
         """
-        Método que define a imagem do Pacman de acordo com a direção e o contador.
+        Método que define a direção do Pacman de acordo com as teclas pressionadas.
         """
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d] and self.turns[0]:
@@ -64,7 +66,7 @@ class Player(Character):
 
     def move(self, ):
         """
-        Método que define a imagem do Pacman de acordo com a direção e o contador.
+        Define a movimentação do Pacman de acordo com a direção que ele está.
         """
 
         if self.direction == 0 and self.turns[0]:
@@ -87,6 +89,9 @@ class Player(Character):
             self.rect.y = self.y_limit - 10
         
     def restart(self, ):
+        """
+        Método que reinicia o Pacman para a posição inicial.
+        """
         self.base_restart()
 
     
