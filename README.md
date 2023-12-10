@@ -50,7 +50,7 @@ Contribuições são bem-vindas! Se você tiver sugestões para melhorias, corre
 
 # Documentação do Trabalho
 
-[Link](https://trabalho-a2-lp.readthedocs.io/pt/latest/)
+A documentação do nosso trabalho e elaboração sobre módulo utilizados pode ser encontrada no seguinte link: [documentação](https://trabalho-a2-lp.readthedocs.io/pt/latest/)
 
 # Agradecimentos
 
