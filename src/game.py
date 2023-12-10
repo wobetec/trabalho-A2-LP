@@ -3,8 +3,28 @@ from pygame import font
 from player import Player
 from enemies import Enemies
 from board import Board
+import pygame_menu
+import json
+from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
+import os
+
 
 from utils import load_board, load_image
+
+def load_high_scores(filename='highscores.json'):
+    project_root = os.path.dirname(os.path.dirname(__file__))  # Obtém o diretório raiz do projeto
+    filepath = os.path.join(project_root, filename)  # Constrói o caminho até o arquivo
+    try:
+        with open(filepath, 'r') as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+def save_high_scores(high_scores, filename='highscores.json'):
+    project_root = os.path.dirname(os.path.dirname(__file__))  # Obtém o diretório raiz do projeto
+    filepath = os.path.join(project_root, filename)  # Constrói o caminho até o arquivo
+    with open(filepath, 'w') as file:
+        json.dump(high_scores, file, indent=4)
 
 class Game():
     """Esta classe controla a lógica principal do jogo."""
@@ -62,9 +82,64 @@ class Game():
         self.score = 0
 
         self.coracao = load_image('/images/other/heart.png', 20)
+        self.high_scores = load_high_scores()
+        self.player_name = 'Player'
+
+    
+    ##### MENU #####
+    
+    def set_player_name(self, name):
+        self.player_name = name
+
+    def start_the_game(self):
+        self.run()
+
+    def show_menu(self):
+        main_menu = pygame_menu.Menu('Welcome', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_BLUE)
+        high_score_menu = self.show_high_scores()
+
+        main_menu.add.text_input('Name :', default='Player 1', onchange=self.set_player_name)
+        main_menu.add.button('Play', self.start_the_game)
+        main_menu.add.button('High Scores', high_score_menu)
+        main_menu.add.button('Quit', pygame_menu.events.EXIT)
+
+        current_menu = main_menu
+
+        while True:
+            if current_menu.is_enabled():
+                current_menu.mainloop(self.screen)
+            if current_menu == main_menu and not high_score_menu.is_enabled():
+                break
+    
+
+    def update_high_scores(self):
+        # Verificar se o nome do jogador foi definido
+        if hasattr(self, 'player_name'):
+            # Adicionar a pontuação atual e o nome do jogador às pontuações mais altas
+            self.high_scores.append({'name': self.player_name, 'score': self.score})
+            # Ordenar a lista de pontuações mais altas em ordem decrescente
+            self.high_scores = sorted(self.high_scores, key=lambda x: x['score'], reverse=True)
+            # Manter apenas as 10 melhores pontuações
+            self.high_scores = self.high_scores[:10]
+            # Salvar as pontuações mais altas atualizadas
+            save_high_scores(self.high_scores)
+    
+    def show_high_scores(self):
+        # Criar um menu para mostrar as pontuações mais altas
+        high_score_menu = pygame_menu.Menu('High Scores', self.WIDTH, self.HEIGHT, theme=pygame_menu.themes.THEME_BLUE)
+
+        for score in self.high_scores:
+            high_score_menu.add.label(f"{score['name']} : {score['score']}")
+
+        high_score_menu.add.button('Back', pygame_menu.events.BACK)
+        return high_score_menu
+
+######## END MENU ########
+    
 
     def start(self, ):
         """Inicia o loop principal do jogo."""
+        # self.show_menu()
         self.run()
     
     def restart(self, ):
@@ -173,9 +248,10 @@ class Game():
 
             self.draw_stats(self.font, self.score, self.screen, self.lives, self.coracao)
 
-            if self.game_over :
+            if self.game_over or self.game_won:
                 # self.running = False
                 self.screen.fill("black")
+                self.update_high_scores()
                 self.board.game_over_screen(self.screen, self.font)
 
             pygame.display.flip()
@@ -312,4 +388,5 @@ class Game():
 
 if __name__ == "__main__":
     game = Game()
+    game.show_menu()
     game.start()
