@@ -14,6 +14,7 @@ author = 'Esdras Cavalcanti, João Pedro Tambosi, João Vilas, Marcelo Angelo Fi
 release = '1'
 
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../src'))
 
 extensions = ['sphinx.ext.autodoc']
 
