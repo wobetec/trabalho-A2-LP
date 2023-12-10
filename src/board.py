@@ -1,10 +1,8 @@
 import copy
 from math import pi as PI
 import pygame
-from button import QuitButton
-import sys
 
-from utils import load_image
+from utils import load_sound
 
 # 0 = empity
 # 1 = point
@@ -28,6 +26,9 @@ class Board():
     AVAILABLE_TILES = [0, 1, 2]
     ENEMIE_AVAILABLE_TILES = [0, 1, 2, 9]
 
+    BLINK_RATE = 10 # frames
+    MARGIN = 15
+
     def __init__(self, board, height, width, box):
         """
         Inicializa a classe Board.
@@ -45,9 +46,15 @@ class Board():
         self.pixel_height = ((self.height - 50) // 32)
         self.pixel_width = (self.width // 30)
         self.box = pygame.Rect(box["x"], box["y"], box["width"], box["height"])
+        self.blink = 0
 
         self.available_fruits_and_dots = 0
         self.count_fruits_and_dots()
+
+        self.sounds= {
+            "fruit": load_sound("eatfruit"),
+            "dot": load_sound("chomp"),
+        }
     
     def count_fruits_and_dots(self, ):
         """
@@ -62,51 +69,50 @@ class Board():
     #     score_text = font.render(f"Pontuação: {score}", True, 'white')
     #     screen.blit(score_text, (10, 920))
 
-    def check_collision_ghost(self, center_x, center_y, dead, in_box, direction):
+    def get_turns_ghost(self, ghost):
         """
         Verifica colisões com os fantasmas no tabuleiro.
 
         Parâmetros:
-        - center_x (int): Coordenada x do centro do personagem.
-        - center_y (int): Coordenada y do centro do personagem.
-        - dead (bool): Indica se o personagem está morto ou não.
-        - in_box (bool): Indica se o personagem está dentro ou fora da caixa.
-        - direction (int): Direção atual do personagem.
 
         Retorna:
         Uma lista indicando se há colisão em direções específicas e se o personagem está dentro ou fora da caixa.
         """
-        # R, L, U, D
-        margin = 15
+        center_x, center_y = ghost.get_center()
+        dead = ghost.is_dead()
+        in_box = ghost.is_in_box()
+        direction = ghost.get_direction()
+        
+        
         turns = [False, False, False, False]
         if 0 < center_x // 30 < 29:
-            if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] == 9:
+            if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9:
                 turns[2] = True
-            if self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] < 3 \
-                    or (self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] == 9 and (
+            if self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] < 3 \
+                    or (self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] == 9 and (
                     in_box or dead)):
                 turns[1] = True
-            if self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] < 3 \
-                    or (self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] == 9 and (
+            if self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] < 3 \
+                    or (self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] == 9 and (
                     in_box or dead)):
                 turns[0] = True
-            if self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                    or (self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+            if self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                    or (self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                     in_box or dead)):
                 turns[3] = True
-            if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                    or (self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+            if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                    or (self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                     in_box or dead)):
                 turns[2] = True
 
             if direction == 2 or direction == 3:
                 if 12 <= center_x % self.pixel_width <= 18:
-                    if self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                            or (self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+                    if self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                            or (self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[3] = True
-                    if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                            or (self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+                    if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                            or (self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[2] = True
                 if 12 <= center_y % self.pixel_height <= 18:
@@ -121,35 +127,31 @@ class Board():
 
             if direction == 0 or direction == 1:
                 if 12 <= center_x % self.pixel_width <= 18:
-                    if self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                            or (self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+                    if self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                            or (self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[3] = True
-                    if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] < 3 \
-                            or (self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] == 9 and (
+                    if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3 \
+                            or (self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[2] = True
                 if 12 <= center_y % self.pixel_height <= 18:
-                    if self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] < 3 \
-                            or (self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] == 9 and (
+                    if self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] < 3 \
+                            or (self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[1] = True
-                    if self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] < 3 \
-                            or (self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] == 9 and (
+                    if self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] < 3 \
+                            or (self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] == 9 and (
                             in_box or dead)):
                         turns[0] = True
         else:
             turns[0] = True
             turns[1] = True
-        if self.box.collidepoint(center_x, center_y):
-            in_box = True
-        else:
-            in_box = False
             
-        return turns, in_box
+        return turns
 
 
-    def check_collision_points(self, center_x, center_y, powerup, power_count, score, eaten_ghosts):
+    def check_collision_points(self, center_x, center_y, powerup, power_count, score):
         """
         Verifica colisões com os pontos no tabuleiro.
 
@@ -159,7 +161,6 @@ class Board():
         - powerup (bool): Indica se há um power-up ativo ou não.
         - power_count (int): Contagem do power-up.
         - score (int): Pontuação atual.
-        - eaten_ghosts (list): Lista indicando fantasmas comidos.
 
         Retorna:
         Atualiza o score, powerups e fantasmas comidos.
@@ -169,50 +170,52 @@ class Board():
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 1:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 10
+                if not pygame.mixer.get_busy():
+                    self.sounds["dot"].play()
+                self.available_fruits_and_dots -= 1
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 2:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 50
+                self.available_fruits_and_dots -= 1
                 powerup = True
                 power_count = 0
-                eaten_ghosts = [False, False, False, False]
-        return score, powerup, power_count, eaten_ghosts
+                self.sounds["fruit"].play()
+        return score, powerup, power_count
 
 
-    def check_postion(self, center_x, center_y, turns, direction):
+    def get_turns_player(self, player):
         """
         Verifica a posição do personagem no tabuleiro e possíveis colisões.
 
         Parâmetros:
-        - center_x (int): Coordenada x do centro do personagem.
-        - center_y (int): Coordenada y do centro do personagem.
-        - turns (list): Lista de direções permitidas.
-        - direction (int): Direção atual do personagem.
 
         Retorna:
         Uma lista indicando direções permitidas para o movimento.
         """
+        center_x, center_y = player.get_center()
+        direction = player.get_direction()
+
         turns = [False, False, False, False]
-        margin = 15
         # check collisions based on center x and center y of player +/- fudge number
         if center_x // 30 < 29:
             if direction == 0:
-                if self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] < 3:
+                if self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] < 3:
                     turns[1] = True
             if direction == 1:
-                if self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] < 3:
+                if self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] < 3:
                     turns[0] = True
             if direction == 2:
-                if self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] < 3:
+                if self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3:
                     turns[3] = True
             if direction == 3:
-                if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] < 3:
+                if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3:
                     turns[2] = True
 
             if direction == 2 or direction == 3:
                 if 12 <= center_x % self.pixel_width <= 18:
-                    if self.board[(center_y + margin) // self.pixel_height][center_x // self.pixel_width] < 3:
+                    if self.board[(center_y + self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3:
                         turns[3] = True
-                    if self.board[(center_y - margin) // self.pixel_height][center_x // self.pixel_width] < 3:
+                    if self.board[(center_y - self.MARGIN) // self.pixel_height][center_x // self.pixel_width] < 3:
                         turns[2] = True
                 if 12 <= center_y % self.pixel_height <= 18:
                     if self.board[center_y // self.pixel_height][(center_x - self.pixel_width) // self.pixel_width] < 3:
@@ -226,9 +229,9 @@ class Board():
                     if self.board[(center_y - self.pixel_height) // self.pixel_height][center_x // self.pixel_width] < 3:
                         turns[2] = True
                 if 12 <= center_y % self.pixel_height <= 18:
-                    if self.board[center_y // self.pixel_height][(center_x - margin) // self.pixel_width] < 3:
+                    if self.board[center_y // self.pixel_height][(center_x - self.MARGIN) // self.pixel_width] < 3:
                         turns[1] = True
-                    if self.board[center_y // self.pixel_height][(center_x + margin) // self.pixel_width] < 3:
+                    if self.board[center_y // self.pixel_height][(center_x + self.MARGIN) // self.pixel_width] < 3:
                         turns[0] = True
         else:
             turns[0] = True
@@ -237,22 +240,9 @@ class Board():
         return turns
 
 
-    def in_box(self, enemies):
-        """
-        Verifica se os inimigos estão dentro da caixa no tabuleiro.
+    def in_box(self, rect):
+        return self.box.colliderect(rect)
 
-        Parâmetros:
-        - enemies (dict): Dicionário contendo informações sobre os inimigos.
-
-        Retorna:
-        Um dicionário indicando se os inimigos estão dentro da caixa.
-        """
-
-        inside = {}
-        for key, value in enemies.items():
-            inside[key] = self.box.collidepoint(*value)
-        return inside
-    
 
     def draw(self, screen):
         """
@@ -262,66 +252,36 @@ class Board():
         - screen (pygame.Surface): Superfície da tela onde o tabuleiro será desenhado.
         """
 
+        self.blink += 1
+        if self.blink == 2*self.BLINK_RATE:
+            self.blink = 0
+
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 if self.board[i][j] == 1:
                     pygame.draw.circle(screen, 'white', (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height + (0.5 * self.pixel_height)), 4)
-                if self.board[i][j] == 2 :#and not flicker:
+
+                elif self.board[i][j] == 2 and self.blink < self.BLINK_RATE:
                     pygame.draw.circle(screen, 'white', (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height + (0.5 * self.pixel_height)), 10)
+
                 if self.board[i][j] == 3:
-                    pygame.draw.line(screen, self.main_color, (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height),
-                                    (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height + self.pixel_height), 3)
+                    pygame.draw.line(screen, self.main_color, (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height), (j * self.pixel_width + (0.5 * self.pixel_width), i * self.pixel_height + self.pixel_height), 3)
+
                 if self.board[i][j] == 4:
-                    pygame.draw.line(screen, self.main_color, (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)),
-                                    (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
+                    pygame.draw.line(screen, self.main_color, (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
+
                 if self.board[i][j] == 5:
-                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width - (self.pixel_width * 0.4)) - 2, (i * self.pixel_height + (0.5 * self.pixel_height)), self.pixel_width, self.pixel_height],
-                                    0, PI / 2, 3)
+                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width - (self.pixel_width * 0.4)) - 2, (i * self.pixel_height + (0.5 * self.pixel_height)), self.pixel_width, self.pixel_height], 0, PI / 2, 3)
+
                 if self.board[i][j] == 6:
-                    pygame.draw.arc(screen, self.main_color,
-                                    [(j * self.pixel_width + (self.pixel_width * 0.5)), (i * self.pixel_height + (0.5 * self.pixel_height)), self.pixel_width, self.pixel_height], PI / 2, PI, 3)
+                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width + (self.pixel_width * 0.5)), (i * self.pixel_height + (0.5 * self.pixel_height)), self.pixel_width, self.pixel_height], PI / 2, PI, 3)
+
                 if self.board[i][j] == 7:
-                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width + (self.pixel_width * 0.5)), (i * self.pixel_height - (0.4 * self.pixel_height)), self.pixel_width, self.pixel_height], PI,
-                                    3 * PI / 2, 3)
+                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width + (self.pixel_width * 0.5)), (i * self.pixel_height - (0.4 * self.pixel_height)), self.pixel_width, self.pixel_height], PI, 3 * PI / 2, 3)
+
                 if self.board[i][j] == 8:
-                    pygame.draw.arc(screen, self.main_color,
-                                    [(j * self.pixel_width - (self.pixel_width * 0.4)) - 2, (i * self.pixel_height - (0.4 * self.pixel_height)), self.pixel_width, self.pixel_height], 3 * PI / 2,
-                                    2 * PI, 3)
+                    pygame.draw.arc(screen, self.main_color, [(j * self.pixel_width - (self.pixel_width * 0.4)) - 2, (i * self.pixel_height - (0.4 * self.pixel_height)), self.pixel_width, self.pixel_height], 3 * PI / 2, 2 * PI, 3)
+
                 if self.board[i][j] == 9:
-                    pygame.draw.line(screen, 'white', (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)),
-                                    (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
-    
-    gameover_img = load_image("/images/other/endgame.png", 300)
-
-    def game_over_screen(self, screen, font) :
-        
-        screen.blit(self.gameover_img, (self.height//2, self.width//2))
-    
-        button = QuitButton(350, 410, 200, 80, gray, "Sair", screen)
-        
-        # # loop do gameover screen 
-
-        gameover_state = True
-
-        # Main game loop
-        while gameover_state:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if button.rect.collidepoint(event.pos):
-                        pygame.quit()
-
-            # Draw the button
-            button.draw()
-
-            # Update the display
-            pygame.display.flip()
-
-            # Cap the frame rate
-            pygame.time.Clock().tick(30)                 
-                        
+                    pygame.draw.line(screen, 'white', (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)       
                 
-        
-
