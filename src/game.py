@@ -1,9 +1,10 @@
 import pygame
+from pygame import font
 from player import Player
 from enemies import Enemies
 from board import Board
 
-from utils import load_board
+from utils import load_board, load_image
 
 class Game():
     """Esta classe controla a lógica principal do jogo."""
@@ -13,17 +14,23 @@ class Game():
 
     FPS = 60
 
+    # pygame.font.init()
+    # font = pygame.font.Font(None, 20)
+
     def __init__(self, ):
         """
         Inicializa a classe Game, responsável pelo controle principal do jogo.
 
         Configura a janela do jogo, cria instâncias de personagens, inimigos e define variáveis de estado do jogo.
         """
-         
+
         pygame.init()
+
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
         
+        self.font = pygame.font.Font(None, 20)
+
         self.sprites_group = pygame.sprite.Group()
         
         board = load_board("originalBoard")
@@ -53,6 +60,8 @@ class Game():
         self.lives = 3
 
         self.score = 0
+
+        self.coracao = load_image('/images/other/heart.png', 20)
 
     def start(self, ):
         """Inicia o loop principal do jogo."""
@@ -162,10 +171,29 @@ class Game():
             if self.powerup["active"]:
                 self.check_eat_ghost()
 
+            self.draw_stats(self.font, self.score, self.screen, self.lives, self.coracao)
+
+            if self.game_over :
+                # self.running = False
+                self.screen.fill("black")
+                self.board.game_over_screen(self.screen, self.font)
 
             pygame.display.flip()
 
         pygame.quit()
+
+    def draw_stats(self, font, score, screen, lives, heart_image):
+        score_text = font.render(f"Pontuação: {score}", True, 'white')
+        screen.blit(score_text, (10, 880))
+
+        lives_text = font.render(f"Vidas restantes: {lives}", True, 'white')
+        screen.blit(lives_text, (120, 880))
+
+        pos_heart = [300,875]
+        for i in range(lives) :
+            screen.blit(heart_image, pos_heart)
+            pos_heart[0] = pos_heart[0] + 25
+
 
     def check_collision_player_ghosts(self, ):
         """Verifica se houve colisão entre o jogador e os fantasmas."""

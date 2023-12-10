@@ -1,6 +1,10 @@
 import copy
 from math import pi as PI
 import pygame
+from button import QuitButton
+import sys
+
+from utils import load_image
 
 # 0 = empity
 # 1 = point
@@ -12,6 +16,11 @@ import pygame
 # 7 = bot left corner
 # 8 = bot right corner
 # 9 = ghosts gate
+
+# Define colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+gray = (200, 200, 200)
 
 class Board():
     """Esta classe define o tabuleiro do jogo."""
@@ -49,6 +58,9 @@ class Board():
                 if self.board[i][j] == 1 or self.board[i][j] == 2:
                     self.available_fruits_and_dots += 1
 
+    # def draw_stats(self, font, score, screen):
+    #     score_text = font.render(f"Pontuação: {score}", True, 'white')
+    #     screen.blit(score_text, (10, 920))
 
     def check_collision_ghost(self, center_x, center_y, dead, in_box, direction):
         """
@@ -278,4 +290,38 @@ class Board():
                 if self.board[i][j] == 9:
                     pygame.draw.line(screen, 'white', (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)),
                                     (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
+    
+    gameover_img = load_image("/images/other/endgame.png", 300)
+
+    def game_over_screen(self, screen, font) :
+        
+        screen.blit(self.gameover_img, (self.height//2, self.width//2))
+    
+        button = QuitButton(350, 410, 200, 80, gray, "Sair", screen)
+        
+        # # loop do gameover screen 
+
+        gameover_state = True
+
+        # Main game loop
+        while gameover_state:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if button.rect.collidepoint(event.pos):
+                        pygame.quit()
+
+            # Draw the button
+            button.draw()
+
+            # Update the display
+            pygame.display.flip()
+
+            # Cap the frame rate
+            pygame.time.Clock().tick(30)                 
+                        
+                
+        
 
