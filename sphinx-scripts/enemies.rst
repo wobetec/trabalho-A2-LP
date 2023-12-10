@@ -1,4 +1,4 @@
-enemies module
+Enemies
 ==============
 
 .. automodule:: enemies

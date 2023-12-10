@@ -1,4 +1,4 @@
-game module
+Game
 ===========
 
 .. automodule:: game

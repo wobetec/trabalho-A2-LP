@@ -1,4 +1,4 @@
-character module
+Character
 ================
 
 .. automodule:: character

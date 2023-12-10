@@ -1,4 +1,4 @@
-button module
+Button
 =============
 
 .. automodule:: button

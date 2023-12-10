@@ -1,4 +1,4 @@
-board module
+Board
 ============
 
 .. automodule:: board
