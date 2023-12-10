@@ -8,8 +8,13 @@ Welcome to Pac-Man's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
+   
+   board
+   button
+   enemies
+   game
+   player
+   utils
 
 
 Indices and tables
