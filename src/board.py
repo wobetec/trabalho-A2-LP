@@ -297,6 +297,17 @@ class Board():
     game_won_img = load_image("/images/other/pinho.jpg", 900)
 
     def game_over_screen(self, screen, font) :
+        """
+        Carrega e cria uma página de Gameover
+
+        Parameters:
+            screen (str): O nome do arquivo da imagem a ser carregada.
+            font (pygame.Font): o tamanho da fonte utilizada 
+
+        Returns:
+            pygame.Surface: Uma superfície contendo a imagem carregada e redimensionada.
+        
+        """
         
         screen.blit(self.gameover_img, (150, -20))
     
@@ -304,11 +315,10 @@ class Board():
 
         menu_button = Button(350, 510, 200, 80, white, "Menu", screen)
         
-        # Loop do gameover screen 
 
         gameover_state = True
 
-        # Main game loop
+        # Gameover screen loop
         while gameover_state:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -334,6 +344,19 @@ class Board():
 
     def game_won_screen(self, screen, font_big, font, points) :
         
+        """
+        Carrega e cria uma página de Gamewon
+
+        Parameters:
+            screen (str): O nome do arquivo da imagem a ser carregada.
+            font_big (str): o tamanho da fonte grande utilizada.
+            font (str): o tamanho da fonte pequena utilizada.
+
+        Returns:
+            pygame.Surface: Uma superfície contendo a imagem carregada e redimensionada.
+        
+        """
+        
         screen.blit(self.game_won_img, (0, 0))
     
         quit_button = Button(350, 610, 200, 80, gray, "Sair", screen)
@@ -344,7 +367,7 @@ class Board():
 
         gamewon_state = True
 
-        # Main game loop
+        # Gamewon loop
         while gamewon_state:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

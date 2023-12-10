@@ -20,7 +20,13 @@ class Enemies:
         self.targets = []
     
     def add_to_group(self, group):
-        """Adiciona os fantasmas a um grupo de sprites."""
+        """
+        Adiciona os fantasmas a um grupo de sprites.
+        
+        Parameters: 
+            group (list):
+        
+        """
         for ghost in self.ghosts.values():
             group.add(ghost)
 
