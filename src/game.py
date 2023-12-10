@@ -49,37 +49,6 @@ def save_high_scores(high_scores, filename='highscores.json'):
 class Game():
     """
     Classe principal do jogo, gerenciando a lógica principal e o estado do jogo.
-
-    Attributes:
-        WIDTH (int): Largura da tela do jogo.
-        HEIGHT (int): Altura da tela do jogo.
-        FPS (int): Frames por segundo do jogo.
-        screen (pygame.Surface): A superfície principal onde o jogo é renderizado.
-        clock (pygame.time.Clock): O relógio do jogo para controle de tempo.
-        font (pygame.font.Font): Fonte pequena para renderização de texto.
-        font_mid (pygame.font.Font): Fonte de tamanho médio para renderização de texto.
-        font_big (pygame.font.Font): Fonte grande para renderização de texto.
-        sprites_group (pygame.sprite.Group): Grupo que contém todos os sprites do jogo.
-        board (Board): O tabuleiro do jogo, contendo informações sobre layout e colisões.
-        player (Player): O jogador controlado pelo usuário.
-        enemies (Enemies): O grupo de inimigos no jogo.
-        powerup (dict): Dicionário contendo informações sobre o power-up (se está ativo, contador, duração).
-        moving (bool): Flag para controlar se os sprites estão se movendo.
-        start_counter (float): Contador para o início do jogo.
-        game_over (bool): Flag que indica se o jogo terminou (perda).
-        game_won (bool): Flag que indica se o jogo foi vencido.
-        direction_command (int): Direção atual comandada pelo jogador.
-        lives (int): Número de vidas do jogador.
-        score (int): Pontuação atual do jogador.
-        coracao (pygame.Surface): Imagem representando a vida do jogador.
-        sounds (dict): Dicionário contendo os efeitos sonoros do jogo.
-        high_scores (list): Lista de pontuações mais altas.
-        player_name (str): Nome do jogador.
-        gameover_img (pygame.Surface): Imagem da tela de 'game over'.
-        game_won_img (pygame.Surface): Imagem da tela de vitória.
-        white (tuple): Cor branca em RGB.
-        black (tuple): Cor preta em RGB.
-        gray (tuple): Cor cinza em RGB.
     """
 
     WIDTH = 900

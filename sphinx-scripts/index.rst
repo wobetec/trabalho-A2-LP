@@ -3,23 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Pac-Man's documentation!
+Documentação do Trabalho de A2 - Pac-Man
 ===================================
 
 .. toctree::
    :maxdepth: 2
-   
-   board
-   button
-   enemies
+   :caption: Módulos
+
    game
+   enemies
    player
    utils
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   board
+   button
