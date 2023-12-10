@@ -1,6 +1,5 @@
 import os
 import sys
-import pathlib
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -14,11 +13,7 @@ copyright = '2023, Esdras Cavalcanti, João Pedro Tambosi, João Vilas, Marcelo 
 author = 'Esdras Cavalcanti, João Pedro Tambosi, João Vilas, Marcelo Angelo Filho, Vitor Palmeira'
 release = '1'
 
-sys.path.insert(0, os.path.abspath('../../../../src'))
-sys.path.insert(0, os.path.abspath('../../../src'))
-sys.path.insert(0, os.path.abspath('../../src'))
-sys.path.insert(0, os.path.abspath('../src'))
-sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+sys.path.insert(0, os.path.abspath('..'))
 
 extensions = ['sphinx.ext.autodoc']
 
