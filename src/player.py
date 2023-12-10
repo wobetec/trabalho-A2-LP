@@ -11,7 +11,7 @@ class Player(Character):
     Classe que herda de Sprite. Implementa a movimentação e renderização do Pacman.
     """
 
-    def __init__(self, start_x, start_y, start_direction):
+    def __init__(self, start_x, start_y, start_direction, x_limit, y_limit):
         """
         Instanciador da classe Player. Define os atributos e importa as sprites.
 
@@ -20,21 +20,15 @@ class Player(Character):
             start_y (int): Posição inicial do Pacman no eixo y.
             start_direction (int): Direção inicial do Pacman. 0-Direita, 1-Esquerda, 2-Cima, 3-Baixo.
         """
-        super().__init__(start_x, start_y, start_direction)
-        self.turns = [False, False, False, False]
+        super().__init__(start_x, start_y, start_direction, x_limit, y_limit)
 
         self.images = []
         for i in range(1, 5):
             name = f"/images/pacman/{i}.png"
             self.images.append(load_image(name))
+
         self.counter = 0
-    
-    def restart(self, ):
-        """
-        Método que reinicia o Pacman para a posição e atributos inicias
-        """
-        self.rect.center = self.start_pos
-        self.direction = self.start_direction
+
     
     def set_image(self, ):
         """
@@ -53,6 +47,7 @@ class Player(Character):
         elif self.direction == 3:
             self.image.blit(pygame.transform.rotate(image, 270), pos)
 
+
     def move(self, ):
         """
         Método que define a imagem do Pacman de acordo com a direção e o contador.
@@ -66,11 +61,20 @@ class Player(Character):
         elif self.direction == 3 and self.turns[3]:
             self.rect.y += self.speed
         
-        if self.rect.x > 900:
-            self.rect.x = -47
+        if self.rect.x > self.x_limit:
+            self.rect.x = -25
         elif self.rect.x < -50:
-            self.rect.x = 897
+            self.rect.x = self.x_limit - 10
 
+        if self.rect.y > self.y_limit:
+            self.rect.y = -25
+        elif self.rect.y < -50:
+            self.rect.y = self.y_limit - 10
+        
+    def restart(self, ):
+        self.base_restart()
+
+    
     def update(self, ):
         """
         Sobrescrevendo o método update da classe Sprite. Define a imagem do Pacman de acordo com a direção e o contador.

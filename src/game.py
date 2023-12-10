@@ -14,8 +14,6 @@ class Game():
 
     FPS = 60
 
-    # pygame.font.init()
-    # font = pygame.font.Font(None, 20)
 
     def __init__(self, ):
         """
@@ -23,7 +21,6 @@ class Game():
 
         Configura a janela do jogo, cria instâncias de personagens, inimigos e define variáveis de estado do jogo.
         """
-
         pygame.init()
 
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -40,10 +37,12 @@ class Game():
             board["playerStart"]["x"],
             board["playerStart"]["y"],
             board["playerStart"]["direction"],
+            self.WIDTH,
+            self.HEIGHT,
         )
         self.sprites_group.add(self.player)
 
-        self.enemies = Enemies(board["ghostsStart"])
+        self.enemies = Enemies(board["ghostsStart"], self.WIDTH, self.HEIGHT)
         self.enemies.add_to_group(self.sprites_group)
 
         self.powerup = {
@@ -51,16 +50,14 @@ class Game():
             "counter": 0,
             "duration": 5,
         }
-        self.eaten_ghosts = [False, False, False, False]
+
         self.moving = False
-        self.start_counter = 2
+        self.start_counter = 1.5
         self.game_over = False
         self.game_won = False
         self.direction_command = 0
         self.lives = 3
-
         self.score = 0
-
         self.coracao = load_image('/images/other/heart.png', 20)
 
     def start(self, ):
@@ -72,8 +69,7 @@ class Game():
         self.moving = False
         self.start_counter = 2
         self.player.restart()
-        for ghost in self.enemies.ghosts.values():
-            ghost.restart()
+        self.enemies.restart()
 
     def run(self, ):
         """Loop principal do jogo, controla a lógica do jogo."""
@@ -87,7 +83,7 @@ class Game():
                 else:
                     self.powerup["active"] = False
                     self.powerup["counter"] = 0
-                    self.eaten_ghosts = [False, False, False, False]
+                    self.enemies.set_eaten(False)
             
             if self.start_counter > 0 and not self.game_over and not self.game_won:
                 self.start_counter -= self.dt
@@ -95,7 +91,6 @@ class Game():
             else:
                 self.moving = True
             
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -130,33 +125,30 @@ class Game():
             self.board.draw(self.screen)
             self.sprites_group.draw(self.screen)
 
-            self.score, self.powerup["active"], self.powerup["counter"], self.eaten_ghosts = self.board.check_collision_points(
-                self.player.rect.centerx,
-                self.player.rect.centery,
+            self.score, self.powerup["active"], self.powerup["counter"] = self.board.check_collision_points(
+                *self.player.get_center(),
                 self.powerup["active"],
                 self.powerup["counter"],
                 self.score,
-                self.eaten_ghosts,
             )
 
             self.enemies.set_spooked(self.powerup["active"])
             
-            self.player.turns = self.board.check_postion(*self.player.rect.center, self.player.turns, self.player.direction)
+            self.player.set_turns(self.board.get_turns_player(self.player))
 
-            self.enemies.revive(self.board.in_box(self.enemies.get_pos()))
+            self.verify_in_box()
 
             self.sprites_group.update()
+
             self.game_won = self.board.available_fruits_and_dots <= 0
 
             if self.moving:
                 self.player.move()
 
-                for ghost in self.enemies.ghosts.values():
-                    ghost.turns, ghost.in_box = self.board.check_collision_ghost(ghost.rect.centerx, ghost.rect.centery, ghost.turns, ghost.in_box, ghost.direction)
-
                 self.get_targets()
 
                 for ghost in self.enemies.ghosts.values():
+                    ghost.set_turns(self.board.get_turns_ghost(ghost))
                     ghost.move()
 
             if not self.powerup["active"] and self.check_collision_player_ghosts():
@@ -167,14 +159,12 @@ class Game():
                     self.moving = False
                     self.game_over = True
         
-
             if self.powerup["active"]:
                 self.check_eat_ghost()
 
             self.draw_stats(self.font, self.score, self.screen, self.lives, self.coracao)
 
             if self.game_over :
-                # self.running = False
                 self.screen.fill("black")
                 self.board.game_over_screen(self.screen, self.font)
 
@@ -183,10 +173,10 @@ class Game():
         pygame.quit()
 
     def draw_stats(self, font, score, screen, lives, heart_image):
-        score_text = font.render(f"Pontuação: {score}", True, 'white')
+        score_text = self.font.render(f"Pontuação: {score}", True, 'white')
         screen.blit(score_text, (10, 880))
 
-        lives_text = font.render(f"Vidas restantes: {lives}", True, 'white')
+        lives_text = self.font.render(f"Vidas restantes: {lives}", True, 'white')
         screen.blit(lives_text, (120, 880))
 
         pos_heart = [300,875]
@@ -198,21 +188,22 @@ class Game():
     def check_collision_player_ghosts(self, ):
         """Verifica se houve colisão entre o jogador e os fantasmas."""
         for ghost in self.enemies.ghosts.values():
-            if self.player.rect.colliderect(ghost.rect) and not ghost.dead:
+            if self.player.rect.colliderect(ghost.rect) and not ghost.is_dead():
                 return True
 
         return False
     
+
     def check_eat_ghost(self, ):
         """Verifica se o jogador comeu um fantasma e atualiza a pontuação."""
         i = 0
         for ghost in self.enemies.ghosts.values():
-            if self.player.rect.colliderect(ghost.rect) and not ghost.dead:
-                ghost.dead = True
-                self.score += (2 ** self.eaten_ghosts.count(True)) * 100
-                self.eaten_ghosts[i] = True
+            if self.player.rect.colliderect(ghost.rect) and not ghost.is_dead():
+                ghost.set_dead(True)
+                self.score += (2 ** i) * 100
                 i += 1
     
+
     def get_targets(self):
         """Define os alvos dos fantasmas com base na posição do jogador e no mapa."""
         blinky = self.enemies.ghosts["blinky"]
@@ -309,6 +300,13 @@ class Game():
         self.enemies.ghosts["inky"].target = inky_target
         self.enemies.ghosts["pinky"].target = pinky_target
         self.enemies.ghosts["clyde"].target = clyde_target
+
+
+    def verify_in_box(self, ):
+        for ghost in self.enemies.ghosts.values():
+            in_box = self.board.in_box(ghost.get_rect())
+            ghost.set_in_box(in_box)
+        
 
 if __name__ == "__main__":
     game = Game()

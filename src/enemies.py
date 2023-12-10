@@ -1,4 +1,3 @@
-from random import choice
 import pygame
 from utils import load_image
 from character import Character
@@ -7,7 +6,7 @@ class Enemies:
 
     GHOSTS_NAMES = ["blinky", "pinky", "inky", "clyde"]
 
-    def __init__(self, ghosts_start):
+    def __init__(self, ghosts_start, x_limit, y_limit):
         """Inicializa os fantasmas no jogo."""
         self.ghosts = { 
             x: Ghost(
@@ -15,10 +14,22 @@ class Enemies:
                 ghosts_start[x]["x"],
                 ghosts_start[x]["y"],
                 ghosts_start[x]["direction"],
+                x_limit, 
+                y_limit
             ) for x in self.GHOSTS_NAMES
         }
         self.powerup = False
         self.targets = []
+    
+    def restart(self, ):
+        """Reinicia os fantasmas para a posição inicial."""
+        for ghost in self.ghosts.values():
+            ghost.restart()
+    
+    def set_eaten(self, eaten):
+        """Define se os fantasmas foram comidos ou não."""
+        for ghost in self.ghosts.values():
+            ghost.set_eaten(eaten)
     
     def add_to_group(self, group):
         """Adiciona os fantasmas a um grupo de sprites."""
@@ -28,12 +39,6 @@ class Enemies:
     def get_pos(self,):
         """Retorna a posição atual de cada fantasma."""
         return {x: (self.ghosts[x].rect.x, self.ghosts[x].rect.y) for x in self.GHOSTS_NAMES}
-
-    def revive(self, in_box):
-        """Revive os fantasmas que estão na caixa."""
-        for key, value in in_box.items():
-            if value:
-                self.ghosts[key].dead = False
 
     def set_spooked(self, powerup):
         """Define se os fantasmas estão assustados ou não."""
@@ -51,10 +56,11 @@ class Ghost(Character):
     SPOOKED_IMG = load_image("/images/ghost/spooked.png")
     DEAD_IMG = load_image("/images/ghost/dead.png")
 
-    def __init__(self, name, start_x, start_y, start_direction):
+    def __init__(self, name, start_x, start_y, start_direction, x_limit, y_limit):
         """Inicializa um fantasma com suas características."""
-        super().__init__(start_x, start_y, start_direction)
+        super().__init__(start_x, start_y, start_direction, x_limit, y_limit)
         self.name = name
+        self.target = [0, 0]
 
         self.images = [load_image(f"/images/ghost/{self.name}.png")]
         self.image.blit(self.images[0], (0, 0))
@@ -62,18 +68,37 @@ class Ghost(Character):
         self.in_box = False
         self.dead = False
         self.spooked = False
-        self.slow = False
         self.eaten = False
 
-        self.target = [0, 0]
+
+    def set_in_box(self, in_box):
+        """Define se o fantasma está na caixa ou não."""
+        self.in_box = in_box
+
+    def set_eaten(self, eaten):
+        """Define se o fantasma foi comido ou não."""
+        self.eaten = eaten
+
+    def set_dead(self, dead):
+        """Define se o fantasma está morto ou não."""
+        self.dead = dead
+
+
+    def is_dead(self, ):
+        """Retorna se o fantasma está morto ou não."""
+        return self.dead
+
+    def is_in_box(self, ):
+        """Retorna se o fantasma está na caixa ou não."""
+        return self.in_box
+
 
     def restart(self, ):
         """Reinicia o estado do fantasma para recomeçar."""
-        self.rect.center = self.start_pos
-        self.direction = self.start_direction
+        self.base_restart()
+
         self.dead = False
         self.spooked = False
-        self.slow = False
         self.eaten = False
         self.speed = 3
 
@@ -85,6 +110,8 @@ class Ghost(Character):
             self.speed = 2
         if self.dead:
             self.speed = 4
+        if not self.spooked and not self.eaten and not self.dead:
+            self.speed = 3
         
     def set_image(self, ):
         """Define a imagem do fantasma com base em seu estado."""
@@ -96,10 +123,15 @@ class Ghost(Character):
         else:
             self.image.blit(self.DEAD_IMG, (0, 0))
 
+    def revive(self, ):
+        if self.in_box:
+            self.dead = False
+
     def update(self, ):
         """Atualiza a imagem e velocidade do fantasma."""
         self.set_image()
         self.set_speed()
+        self.revive()
 
     def move(self, ):
         """Move o fantasma no jogo."""
