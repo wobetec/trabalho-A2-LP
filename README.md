@@ -16,7 +16,7 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
 
 ## Screenshots
 
-<img src="assets/images/screenshots/you_won_screen.png" alt="Tela Você Ganhou!" width="300"/> <img src="assets/images/screenshots/gameplay_screen.png" alt="Gameplay" width="300"/> <img src="assets/images/screenshots/gameover_screen.png" alt="Game Over!" width="300"/>
+<img src="assets/images/screenshots/you_won_screen.png" alt="Tela Você Ganhou!" width="300"/> <img src="assets/images/screenshots/gameplay_screen.PNG" alt="Gameplay" width="300"/> <img src="assets/images/screenshots/gameover_screen.PNG" alt="Game Over!" width="300"/>
 
 ## Funcionalidades Principais
 
