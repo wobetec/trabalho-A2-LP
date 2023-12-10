@@ -30,7 +30,7 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
 1. **Instale as Dependências**: Certifique-se de ter o Python e o Pygame instalados. Você pode instalar o Pygame usando o seguinte comando:
 
    ```bash
-   pip install pygame
+   pip install -r requirements.txt
    ```
 
 2. **Clone o Repositório**: Clone este repositório em seu ambiente local usando:
@@ -39,7 +39,7 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
    git clone https://github.com/wobetec/trabalho-A2-LP.git
    ```
 
-3. **Execute o Jogo**: Navegue até o diretório do projeto e execute o jogo usando:
+3. **Execute o Jogo**: Navegue até o diretório do projeto (`src`) e execute o jogo usando:
    ```bash
    python game.py
    ```
@@ -56,4 +56,4 @@ A documentação do nosso trabalho e elaboração sobre módulo utilizados pode 
 
 Os assets bem como a matemática básica por trás do movimento dos fantasmas foi extraída do seguinte link: [plemaster01](https://github.com/plemaster01/PythonPacman).
 
-A Trilha sonora utilizada nas animações e demais momentos do jogo foi retirado do seguinte link: [site](https://www.classicgaming.cc/classics/pac-man/sounds)
+A Trilha sonora utilizada nas animações e demais momentos do jogo foi retirado do seguinte link: [classicgaming](https://www.classicgaming.cc/classics/pac-man/sounds)
