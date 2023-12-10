@@ -1,7 +1,7 @@
 import copy
 from math import pi as PI
 import pygame
-from button import QuitButton
+from button import Button
 import sys
 
 from utils import load_image
@@ -169,9 +169,11 @@ class Board():
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 1:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 10
+                self.available_fruits_and_dots -= 1
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 2:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 50
+                self.available_fruits_and_dots -= 1
                 powerup = True
                 power_count = 0
                 eaten_ghosts = [False, False, False, False]
@@ -291,15 +293,18 @@ class Board():
                     pygame.draw.line(screen, 'white', (j * self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)),
                                     (j * self.pixel_width + self.pixel_width, i * self.pixel_height + (0.5 * self.pixel_height)), 3)
     
-    gameover_img = load_image("/images/other/endgame.png", 300)
+    gameover_img = load_image("/images/other/endgame.png", 600)
+    game_won_img = load_image("/images/other/pinho.jpg", 900)
 
     def game_over_screen(self, screen, font) :
         
-        screen.blit(self.gameover_img, (self.height//2, self.width//2))
+        screen.blit(self.gameover_img, (150, -20))
     
-        button = QuitButton(350, 410, 200, 80, gray, "Sair", screen)
+        quit_button = Button(350, 610, 200, 80, gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, white, "Menu", screen)
         
-        # # loop do gameover screen 
+        # Loop do gameover screen 
 
         gameover_state = True
 
@@ -310,18 +315,84 @@ class Board():
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if button.rect.collidepoint(event.pos):
+                    if quit_button.rect.collidepoint(event.pos):
                         pygame.quit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        pass                 
 
-            # Draw the button
-            button.draw()
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
 
             # Update the display
             pygame.display.flip()
 
             # Cap the frame rate
             pygame.time.Clock().tick(30)                 
-                        
+
+    def game_won_screen(self, screen, font_big, font, points) :
+        
+        screen.blit(self.game_won_img, (0, 0))
+    
+        quit_button = Button(350, 610, 200, 80, gray, "Sair", screen)
+
+        menu_button = Button(350, 510, 200, 80, white, "Menu", screen)
+        
+        # Loop do gamewon screen 
+
+        gamewon_state = True
+
+        # Main game loop
+        while gamewon_state:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_button.rect.collidepoint(event.pos):
+                        pygame.quit()
+                    if menu_button.rect.collidepoint(event.pos):
+                        pass                 
+
+
+            # Você venceu text
+        
+            vc_venceu_text = font_big.render(f"Você venceu!", True, 'white')
+            vc_venceu_text_rect = vc_venceu_text.get_rect()
+
+            # Calculate the position where you want to blit the text
+            sizeoftext_x = (screen.get_width() - vc_venceu_text_rect.width) // 2
+            sizeoftext_y = (screen.get_height() - vc_venceu_text_rect.height - 300) // 2
+
+            # Blit the text to the screen
+            screen.blit(vc_venceu_text, (sizeoftext_x, sizeoftext_y))
+
+            # Sua pontuação text
+
+            pontuacao_text = font.render(f"Sua pontuação: {points}", True, 'white')
+            pontuacao_text_rect = pontuacao_text.get_rect()
+            
+            # Calculate the position where you want to blit the text
+            sizeoftext_x_2 = (screen.get_width() - pontuacao_text_rect.width) // 2
+            sizeoftext_y_2 = (screen.get_height() - pontuacao_text_rect.height - 200) // 2
+
+            # Blit the text to the screen
+            screen.blit(pontuacao_text, (sizeoftext_x_2, sizeoftext_y_2))
+
+
+            # Draw the quit button
+            quit_button.draw()
+
+            # Draw the restart button
+            menu_button.draw()
+
+            # Update the display
+            pygame.display.flip()
+
+            # Cap the frame rate
+            pygame.time.Clock().tick(30)       
                 
         
 

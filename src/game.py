@@ -29,7 +29,11 @@ class Game():
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
         
+
+        # SETAR AS FONTES 
         self.font = pygame.font.Font(None, 20)
+        self.font_mid = pygame.font.Font(None, 50)
+        self.font_big = pygame.font.Font(None, 100)
 
         self.sprites_group = pygame.sprite.Group()
         
@@ -178,6 +182,10 @@ class Game():
                 self.screen.fill("black")
                 self.board.game_over_screen(self.screen, self.font)
 
+            if self.game_won :
+                self.screen.fill("black")
+                self.board.game_won_screen(self.screen, self.font_big, self.font_mid, self.score)
+
             pygame.display.flip()
 
         pygame.quit()
@@ -194,6 +202,9 @@ class Game():
             screen.blit(heart_image, pos_heart)
             pos_heart[0] = pos_heart[0] + 25
 
+        percentage = str((256 - self.board.available_fruits_and_dots)*100//256)
+        progress = font.render(f"Progresso: {percentage}%", True, 'white')
+        screen.blit(progress, (700, 880))
 
     def check_collision_player_ghosts(self, ):
         """Verifica se houve colisão entre o jogador e os fantasmas."""
