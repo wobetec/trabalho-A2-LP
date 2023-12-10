@@ -1,6 +1,6 @@
 # Jogo PacMan em Python com Pygame (Trabalho A2 - Linguagens de Programação)
 
-#### Membros: João Pedro Tambosi, João Felipe Vilas Boas, Esdras Cavalcanti, Marcelo Ângelo, e Vitor Palmeira.
+### Membros: João Pedro Tambosi, João Felipe Vilas Boas, Esdras Cavalcanti, Marcelo Ângelo, e Vitor Palmeira.
 
 Bem-vindo à nossa replica do jogo PacMan, desenvolvido em Python com Pygame e utilizando uma abordagem robusta de Orientação a Objetos.
 
@@ -13,6 +13,10 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
 - **Python**: A linguagem de programação principal.
 - **Pygame**: Uma biblioteca poderosa para desenvolvimento de jogos em Python, oferecendo recursos gráficos e de áudio.
 - **Orientação a Objetos**: Uma abordagem eficaz para organizar o código em componentes reutilizáveis e compreensíveis.
+
+## Screenshots
+
+<img src="assets/images/screenshots/you_won_screen.png" alt="Tela Você Ganhou!" width="300"/> <img src="assets/images/screenshots/gameplay_screen.png" alt="Gameplay" width="300"/> <img src="assets/images/screenshots/gameover_screen.png" alt="Game Over!" width="300"/>
 
 ## Funcionalidades Principais
 
