@@ -48,6 +48,10 @@ Este jogo PacMan foi criado como parte de um projeto que destaca as melhores pr�
 
 Contribuições são bem-vindas! Se você tiver sugestões para melhorias, correções de bugs ou novas funcionalidades, sinta-se à vontade para abrir uma issue ou enviar um pull request.
 
+# Documentação do Trabalho
+
+[Link]()
+
 # Agradecimentos
 
 Os assets bem como a matemática básica por trás do movimento dos fantasmas foi extraída de [plemaster01](https://github.com/plemaster01/PythonPacman).
