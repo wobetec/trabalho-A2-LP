@@ -54,6 +54,6 @@ Contribuições são bem-vindas! Se você tiver sugestões para melhorias, corre
 
 # Agradecimentos
 
-Os assets bem como a matemática básica por trás do movimento dos fantasmas foi extraída de [plemaster01](https://github.com/plemaster01/PythonPacman).
+Os assets bem como a matemática básica por trás do movimento dos fantasmas foi extraída do seguinte link: [plemaster01](https://github.com/plemaster01/PythonPacman).
 
-Trilha sonora: [site](https://www.classicgaming.cc/classics/pac-man/sounds)
+A Trilha sonora utilizada nas animações e demais momentos do jogo foi retirado do seguinte link: [site](https://www.classicgaming.cc/classics/pac-man/sounds)
