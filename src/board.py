@@ -4,7 +4,7 @@ import pygame
 from button import QuitButton
 import sys
 
-from utils import load_image
+from utils import load_image, load_sound
 
 # 0 = empity
 # 1 = point
@@ -52,6 +52,11 @@ class Board():
 
         self.available_fruits_and_dots = 0
         self.count_fruits_and_dots()
+
+        self.sounds= {
+            "fruit": load_sound("eatfruit"),
+            "dot": load_sound("chomp"),
+        }
     
     def count_fruits_and_dots(self, ):
         """
@@ -167,11 +172,14 @@ class Board():
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 1:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 10
+                if not pygame.mixer.get_busy():
+                    self.sounds["dot"].play()
             if self.board[center_y // self.pixel_height][center_x // self.pixel_width] == 2:
                 self.board[center_y // self.pixel_height][center_x // self.pixel_width] = 0
                 score += 50
                 powerup = True
                 power_count = 0
+                self.sounds["fruit"].play()
         return score, powerup, power_count
 
 

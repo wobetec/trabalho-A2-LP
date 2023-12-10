@@ -70,7 +70,6 @@ class Ghost(Character):
         self.spooked = False
         self.eaten = False
 
-
     def set_in_box(self, in_box):
         """Define se o fantasma está na caixa ou não."""
         self.in_box = in_box
@@ -98,7 +97,6 @@ class Ghost(Character):
     def set_target(self, target):
         """Define o alvo do fantasma."""
         self.target = target
-
 
     def restart(self, ):
         """Reinicia o estado do fantasma para recomeçar."""

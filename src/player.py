@@ -2,7 +2,7 @@
 Define a classe de jogador utilizada no game.
 """
 import pygame
-from utils import load_image
+from utils import load_image, load_sound
 from math import floor, ceil
 from character import Character
 
@@ -26,6 +26,7 @@ class Player(Character):
         for i in range(1, 5):
             name = f"/images/pacman/{i}.png"
             self.images.append(load_image(name))
+        self.sounds = {}
 
         self.counter = 0
 

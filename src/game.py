@@ -4,7 +4,7 @@ from player import Player
 from enemies import Enemies
 from board import Board
 
-from utils import load_board, load_image
+from utils import load_board, load_image, load_sound
 
 class Game():
     """Esta classe controla a lógica principal do jogo."""
@@ -22,6 +22,8 @@ class Game():
         Configura a janela do jogo, cria instâncias de personagens, inimigos e define variáveis de estado do jogo.
         """
         pygame.init()
+        pygame.mixer.init()
+        pygame.display.set_caption('Pacman')
 
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
@@ -52,13 +54,18 @@ class Game():
         }
 
         self.moving = False
-        self.start_counter = 1.5
+        self.start_counter = 4
         self.game_over = False
         self.game_won = False
         self.direction_command = 0
         self.lives = 3
         self.score = 0
         self.coracao = load_image('/images/other/heart.png', 20)
+        self.sounds = {
+            "start": load_sound("beginning"),
+            "death": load_sound("death"),
+            "ghost": load_sound("eatghost"),
+        }
 
     def start(self, ):
         """Inicia o loop principal do jogo."""
@@ -74,6 +81,7 @@ class Game():
     def run(self, ):
         """Loop principal do jogo, controla a lógica do jogo."""
         running = True
+        self.sounds["start"].play()
         while running:
             self.dt = self.clock.tick(self.FPS) / 1000.0
 
@@ -128,6 +136,8 @@ class Game():
 
             if not self.powerup["active"] and self.check_collision_player_ghosts():
                 if self.lives > 0:
+                    self.sounds["death"].play()
+                    pygame.time.wait(1000)
                     self.lives -= 1
                     self.restart()
                 else:
@@ -175,6 +185,7 @@ class Game():
         for ghost in self.enemies.ghosts.values():
             if self.player.rect.colliderect(ghost.rect) and not ghost.is_dead():
                 ghost.set_dead(True)
+                self.sounds["ghost"].play()
                 self.score += (2 ** i) * 100
                 i += 1
     

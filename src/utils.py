@@ -30,3 +30,16 @@ def load_board(board_name):
     path = os.path.join(os.path.dirname(__file__), f"../assets/boards/{board_name}.json")
     with open(path, "r") as f:
         return json.load(f)
+    
+def load_sound(sound_name):
+    """
+    Carrega um arquivo de som.
+
+    Parameters:
+        sound_name (str): O nome do arquivo de som a ser carregado.
+
+    Returns:
+        pygame.mixer.Sound: Um objeto Sound do pygame contendo o som carregado.
+    """
+    path = os.path.join(os.path.dirname(__file__), f"../assets/sounds/{sound_name}.wav")
+    return pygame.mixer.Sound(path)
