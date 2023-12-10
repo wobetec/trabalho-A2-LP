@@ -31,6 +31,15 @@ class Character(pygame.sprite.Sprite):
         """
         self.turns = turns
     
+    def set_direction(self, direction):
+        """
+        Método que define a direção do Pacman.
+
+        Parameters:
+            direction (int): Direção do Pacman.
+        """
+        self.direction = direction
+    
     def get_center(self, ):
         """
         Método que retorna a posição central do Pacman.

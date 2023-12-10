@@ -47,16 +47,30 @@ class Player(Character):
         elif self.direction == 3:
             self.image.blit(pygame.transform.rotate(image, 270), pos)
 
+    def get_input(self, ):
+        """
+        Método que define a imagem do Pacman de acordo com a direção e o contador.
+        """
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_d] and self.turns[0]:
+            self.direction = 0
+        elif keys[pygame.K_a] and self.turns[1]:
+            self.direction = 1
+        elif keys[pygame.K_w] and self.turns[2]:
+            self.direction = 2
+        elif keys[pygame.K_s] and self.turns[3]:
+            self.direction = 3
 
     def move(self, ):
         """
         Método que define a imagem do Pacman de acordo com a direção e o contador.
         """
+
         if self.direction == 0 and self.turns[0]:
             self.rect.x += self.speed
         elif self.direction == 1 and self.turns[1]:
             self.rect.x -= self.speed
-        if self.direction == 2 and self.turns[2]:
+        elif self.direction == 2 and self.turns[2]:
             self.rect.y -= self.speed
         elif self.direction == 3 and self.turns[3]:
             self.rect.y += self.speed

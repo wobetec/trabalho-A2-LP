@@ -94,32 +94,7 @@ class Game():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_d:
-                        self.direction_command = 0
-                    if event.key == pygame.K_a:
-                        self.direction_command = 1
-                    if event.key == pygame.K_w:
-                        self.direction_command = 2
-                    if event.key == pygame.K_s:
-                        self.direction_command = 3
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_d and self.direction_command == 0:
-                        self.direction_command = self.player.direction
-                    if event.key == pygame.K_a and self.direction_command == 1:
-                        self.direction_command = self.player.direction
-                    if event.key == pygame.K_w and self.direction_command == 2:
-                        self.direction_command = self.player.direction
-                    if event.key == pygame.K_s and self.direction_command == 3:
-                        self.direction_command = self.player.direction
-            if self.direction_command == 0 and self.player.turns[0]:
-                self.player.direction = 0
-            if self.direction_command == 1 and self.player.turns[1]:
-                self.player.direction = 1
-            if self.direction_command == 2 and self.player.turns[2]:
-                self.player.direction = 2
-            if self.direction_command == 3 and self.player.turns[3]:
-                self.player.direction = 3
+            self.player.get_input()
 
             self.screen.fill("black")
             self.board.draw(self.screen)
@@ -204,7 +179,7 @@ class Game():
                 i += 1
     
 
-    def get_targets(self):
+    def get_targets(self, ):
         """Define os alvos dos fantasmas com base na posição do jogador e no mapa."""
         blinky = self.enemies.ghosts["blinky"]
         blinky_x, blinky_y = blinky.rect.center
@@ -230,36 +205,36 @@ class Game():
             runaway_y = 0
         return_target = (380, 400)
         if self.powerup["active"]:
-            if not blinky.dead and not blinky.eaten:
+            if not blinky.is_dead() and not blinky.is_eaten():
                 blinky_target = (runaway_x, runaway_y)
-            elif not blinky.dead and blinky.eaten:
+            elif not blinky.is_dead() and blinky.is_eaten():
                 if 340 < blinky_x < 560 and 340 < blinky_y < 500:
                     blinky_target = (400, 100)
                 else:
                     blinky_target = (player_x, player_y)
             else:
                 blinky_target = return_target
-            if not inky.dead and not pinky.eaten:
+            if not inky.is_dead() and not pinky.is_eaten():
                 inky_target = (runaway_x, player_y)
-            elif not inky.dead and pinky.eaten:
+            elif not inky.is_dead() and pinky.is_eaten():
                 if 340 < inky_x < 560 and 340 < inky_y < 500:
                     inky_target = (400, 100)
                 else:
                     inky_target = (player_x, player_y)
             else:
                 inky_target = return_target
-            if not pinky.dead:
+            if not pinky.is_dead():
                 pinky_target = (player_x, runaway_y)
-            elif not pinky.dead and inky.eaten:
+            elif not pinky.is_dead() and inky.is_eaten():
                 if 340 < pinky_x < 560 and 340 < pinky_y < 500:
                     pinky_target = (400, 100)
                 else:
                     pinky_target = (player_x, player_y)
             else:
                 pinky_target = return_target
-            if not clyde.dead and not clyde.eaten:
+            if not clyde.is_dead() and not clyde.is_eaten():
                 clyde_target = (450, 450)
-            elif not clyde.dead and clyde.eaten:
+            elif not clyde.is_dead() and clyde.is_eaten():
                 if 340 < clyde_x < 560 and 340 < clyde_y < 500:
                     clyde_target = (400, 100)
                 else:
@@ -267,28 +242,28 @@ class Game():
             else:
                 clyde_target = return_target
         else:
-            if not blinky.dead:
+            if not blinky.is_dead():
                 if 340 < blinky_x < 560 and 340 < blinky_y < 500:
                     blinky_target = (400, 100)
                 else:
                     blinky_target = (player_x, player_y)
             else:
                 blinky_target = return_target
-            if not inky.dead:
+            if not inky.is_dead():
                 if 340 < inky_x < 560 and 340 < inky_y < 500:
                     inky_target = (400, 100)
                 else:
                     inky_target = (player_x, player_y)
             else:
                 inky_target = return_target
-            if not pinky.dead:
+            if not pinky.is_dead():
                 if 340 < pinky_x < 560 and 340 < pinky_y < 500:
                     pinky_target = (400, 100)
                 else:
                     pinky_target = (player_x, player_y)
             else:
                 pinky_target = return_target
-            if not clyde.dead:
+            if not clyde.is_dead():
                 if 340 < clyde_x < 560 and 340 < clyde_y < 500:
                     clyde_target = (400, 100)
                 else:
@@ -296,10 +271,10 @@ class Game():
             else:
                 clyde_target = return_target
 
-        self.enemies.ghosts["blinky"].target = blinky_target
-        self.enemies.ghosts["inky"].target = inky_target
-        self.enemies.ghosts["pinky"].target = pinky_target
-        self.enemies.ghosts["clyde"].target = clyde_target
+        self.enemies.ghosts["blinky"].set_target(blinky_target)
+        self.enemies.ghosts["inky"].set_target(inky_target)
+        self.enemies.ghosts["pinky"].set_target(pinky_target)
+        self.enemies.ghosts["clyde"].set_target(clyde_target)
 
 
     def verify_in_box(self, ):

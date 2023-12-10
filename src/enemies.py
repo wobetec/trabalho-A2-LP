@@ -83,7 +83,10 @@ class Ghost(Character):
         """Define se o fantasma está morto ou não."""
         self.dead = dead
 
-
+    def is_eaten(self, ):
+        """Retorna se o fantasma foi comido ou não."""
+        return self.eaten
+    
     def is_dead(self, ):
         """Retorna se o fantasma está morto ou não."""
         return self.dead
@@ -91,6 +94,10 @@ class Ghost(Character):
     def is_in_box(self, ):
         """Retorna se o fantasma está na caixa ou não."""
         return self.in_box
+
+    def set_target(self, target):
+        """Define o alvo do fantasma."""
+        self.target = target
 
 
     def restart(self, ):
